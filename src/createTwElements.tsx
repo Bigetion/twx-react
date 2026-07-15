@@ -30,6 +30,7 @@ import React, { forwardRef, memo } from 'react';
 import { parseClassName } from './internal/parser';
 import { generateCSSString } from './internal/generator';
 import { injectCSS } from './internal/injector';
+import { expandClassName } from './internal/expander';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Type Definitions
@@ -53,11 +54,16 @@ export type TwElements = {
 /**
  * Core tw function - processes Tailwind classes and injects CSS
  * Extracted here to avoid circular dependency with createTwElements
+ * Includes grouping expansion step
  */
 const twFunction = (classString: string): string => {
   if (!classString) return '';
 
-  const tokens = classString.split(/\s+/).filter(Boolean);
+  // Step 1: Expand grouping syntax
+  const expanded = expandClassName(classString);
+
+  // Step 2: Process each token
+  const tokens = expanded.split(/\s+/).filter(Boolean);
 
   for (const token of tokens) {
     const parsed = parseClassName(token);
@@ -68,7 +74,7 @@ const twFunction = (classString: string): string => {
     }
   }
 
-  return classString;
+  return expanded;
 };
 
 /**

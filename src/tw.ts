@@ -36,6 +36,7 @@
 import { parseClassName } from './internal/parser';
 import { generateCSSString } from './internal/generator';
 import { injectCSS } from './internal/injector';
+import { expandClassName } from './internal/expander';
 import { createTwElementsProxy, type TwElements } from './createTwElements';
 
 // Side-effect: ensure all utility builders are registered
@@ -43,12 +44,23 @@ import './internal/init';
 
 /**
  * Core tw function - processes Tailwind classes and injects CSS
+ *
+ * Supports grouping syntax:
+ * - Variant grouping: hover:(bg-blue-500 text-white)
+ * - Nested grouping: dark:(hover:(bg-gray-800 text-white))
+ * - Important grouping: !(bg-red-500 text-white)
+ * - Negative grouping: -(mt-4 ml-2)
+ *
  * @internal
  */
 function twFunction(classString: string): string {
   if (!classString) return '';
 
-  const tokens = classString.split(/\s+/).filter(Boolean);
+  // Step 1: Expand grouping syntax
+  const expanded = expandClassName(classString);
+
+  // Step 2: Process each token
+  const tokens = expanded.split(/\s+/).filter(Boolean);
 
   for (const token of tokens) {
     const parsed = parseClassName(token);
@@ -59,7 +71,8 @@ function twFunction(classString: string): string {
     }
   }
 
-  return classString;
+  // Return the expanded string (so the DOM has individual classes)
+  return expanded;
 }
 
 /**

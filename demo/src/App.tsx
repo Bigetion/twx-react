@@ -5,9 +5,11 @@ import { TabsExamples } from '../../examples/tabs';
 import { ThemeSwitchingApp } from '../../examples/theme-switching';
 import { TypeScriptExamples } from '../../examples/typescript-usage';
 import { TwElementsExamples } from '../../examples/tw-elements';
+import { ClassGroupingExamples } from '../../examples/class-grouping';
 
 const tabs = [
-  { id: 'tw-elements', label: 'tw.elements ✨', component: TwElementsExamples },
+  { id: 'tw-elements', label: 'tw.elements', component: TwElementsExamples },
+  { id: 'grouping', label: 'Grouping ✨', component: ClassGroupingExamples },
   { id: 'button', label: 'Button', component: ButtonExamples },
   { id: 'card', label: 'Card', component: CardExamples },
   { id: 'tabs', label: 'Tabs', component: TabsExamples },

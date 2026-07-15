@@ -21,6 +21,7 @@ autoInjectPreflight();
 // ─── Utility Functions ────────────────────────────────────────────────────────
 
 export { tw } from './tw';
+export { expandClassName } from './internal/expander';
 
 // ─── Preflight (CSS Reset) ────────────────────────────────────────────────────
 
