@@ -110,6 +110,8 @@ const Button = createTwComponent('button', {
 ## Features
 
 - **Zero build step** — Runtime CSS generation and injection, no PostCSS or config files
+- **tw.element components** — Clean HTML wrappers with automatic CSS processing
+- **Class grouping syntax** — `hover:(bg-blue-600 scale-105)` expands variants automatically
 - **Full TypeScript inference** — Variant props are type-safe with autocomplete
 - **Polymorphic `as` prop** — Render any component as a different element
 - **Ref forwarding** — All components forward refs correctly
@@ -200,6 +202,88 @@ const buttonStyles = tw('px-4 py-2 rounded');
 // Export and reuse
 export { cardStyles, buttonStyles };
 ```
+
+---
+
+### Class Grouping Syntax
+
+Write shorter, more readable class strings by grouping multiple classes under a shared prefix.
+
+#### Variant Grouping
+
+```tsx
+// Instead of repeating the variant:
+<tw.button className="hover:bg-blue-600 hover:shadow-lg hover:scale-105" />
+
+// Group them:
+<tw.button className="hover:(bg-blue-600 shadow-lg scale-105)" />
+```
+
+#### Responsive Grouping
+
+```tsx
+<tw.div className="
+  flex flex-col
+  sm:(flex-row items-center gap-4)
+  md:(gap-8 px-6)
+  lg:(max-w-6xl mx-auto gap-12)
+" />
+```
+
+#### Nested Grouping
+
+Nest groups for complex variant combinations like dark mode + hover:
+
+```tsx
+<tw.button className="
+  bg-white text-gray-900
+  hover:(bg-gray-50)
+  dark:(bg-gray-800 text-white hover:(bg-gray-700 text-gray-100))
+" />
+
+// Expands to:
+// bg-white text-gray-900 hover:bg-gray-50
+// dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:hover:text-gray-100
+```
+
+#### Important Grouping
+
+Apply `!important` to multiple classes at once:
+
+```tsx
+<tw.div className="!(bg-red-500 text-white p-4)" />
+// → !bg-red-500 !text-white !p-4
+```
+
+#### Negative Grouping
+
+Apply negative modifier to multiple classes:
+
+```tsx
+<tw.div className="-(mt-4 ml-2 translate-x-1)" />
+// → -mt-4 -ml-2 -translate-x-1
+```
+
+#### Real-World Example
+
+```tsx
+<tw.button className="
+  px-4 py-2 rounded-lg font-medium transition-all
+  bg-blue-500 text-white
+  hover:(bg-blue-600 shadow-lg scale-105)
+  focus:(ring-2 ring-blue-300 ring-offset-2)
+  active:(scale-95 bg-blue-700)
+  disabled:(opacity-50 cursor-not-allowed pointer-events-none)
+  dark:(bg-blue-600 hover:bg-blue-500)
+  sm:(text-sm px-3 py-1.5)
+  md:(text-base px-4 py-2)
+  lg:(text-lg px-6 py-3)
+">
+  Click me
+</tw.button>
+```
+
+Grouping works everywhere — with `tw.element` components, the `tw()` function, and inside `createTwComponent` base/variant strings.
 
 ---
 
