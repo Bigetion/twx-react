@@ -44,6 +44,13 @@ const KNOWN_COMPOUND_VALUES = new Set([
   'row-dense', 'col-dense',
 ]);
 
+/**
+ * Gradient color utilities that should preserve color family-shade format.
+ * e.g., "from-indigo-600" should be parsed as utility="from", value="indigo-600"
+ * not as utility="from-indigo", value="600"
+ */
+const GRADIENT_COLOR_UTILITIES = new Set(['from', 'via', 'to']);
+
 export function parseClassName(className: string): ParsedClass {
   if (!className || typeof className !== 'string') {
     return {
@@ -127,6 +134,19 @@ export function parseClassName(className: string): ParsedClass {
     // For regular classes: split by last hyphen to separate utility and value
     // "px-4" → utility: "px", value: "4"
     // "bg-blue-500" → utility: "bg-blue", value: "500"
+    
+    // Special handling for gradient color utilities (from-, via-, to-)
+    // "from-indigo-600" should be: utility: "from", value: "indigo-600"
+    const firstHyphenIndex = workingClass.indexOf('-');
+    if (firstHyphenIndex > 0) {
+      const potentialGradientUtility = workingClass.substring(0, firstHyphenIndex);
+      if (GRADIENT_COLOR_UTILITIES.has(potentialGradientUtility)) {
+        utility = potentialGradientUtility;
+        value = workingClass.substring(firstHyphenIndex + 1);
+        return { utility, value, variants, modifiers, arbitrary: hasArbitrary ? true : undefined };
+      }
+    }
+    
     const lastHyphenIndex = workingClass.lastIndexOf('-');
     
     if (lastHyphenIndex > 0) {
