@@ -3,7 +3,7 @@
  * Task 3.10: Border width, style, radius, divide, and outline utilities
  */
 
-import { clearRegistry } from '../../../src/internal/generator';
+import { clearRegistry, generateCSS } from '../../../src/internal/generator';
 import {
   registerBorderUtilities,
   borderAll,
@@ -53,6 +53,7 @@ function makeParsed(utility: string, value?: string): ParsedClass {
 describe('Border Utilities Builder', () => {
   beforeEach(() => {
     clearRegistry();
+    registerBorderUtilities();
   });
 
   describe('registerBorderUtilities', () => {
@@ -321,89 +322,161 @@ describe('Border Utilities Builder', () => {
   // ─── Divide Utilities ─────────────────────────────────────────────────────
 
   describe('Divide Utilities', () => {
-    it('divide-x (no value) → border-right: 0px, border-left: 1px', () => {
+    it('divide-x (no value) → border-left-width calc with reverse', () => {
       expect(divideX(makeParsed('divide-x'))).toEqual({
-        'border-right-width': '0px',
-        'border-left-width': '1px',
+        properties: {
+          'border-left-width': 'calc(1px * calc(1 - var(--tw-divide-x-reverse, 0)))',
+          'border-right-width': 'calc(1px * var(--tw-divide-x-reverse, 0))',
+        },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
       });
     });
 
-    it('divide-x-0 → border-right: 0px, border-left: 0px', () => {
+    it('divide-x-0 → border-left-width calc with reverse', () => {
       expect(divideX(makeParsed('divide-x', '0'))).toEqual({
-        'border-right-width': '0px',
-        'border-left-width': '0px',
+        properties: {
+          'border-left-width': 'calc(0px * calc(1 - var(--tw-divide-x-reverse, 0)))',
+          'border-right-width': 'calc(0px * var(--tw-divide-x-reverse, 0))',
+        },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
       });
     });
 
-    it('divide-x-2 → border-right: 0px, border-left: 2px', () => {
+    it('divide-x-2 → border-left-width calc with reverse', () => {
       expect(divideX(makeParsed('divide-x', '2'))).toEqual({
-        'border-right-width': '0px',
-        'border-left-width': '2px',
+        properties: {
+          'border-left-width': 'calc(2px * calc(1 - var(--tw-divide-x-reverse, 0)))',
+          'border-right-width': 'calc(2px * var(--tw-divide-x-reverse, 0))',
+        },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
       });
     });
 
-    it('divide-x-4 → border-right: 0px, border-left: 4px', () => {
+    it('divide-x-4 → border-left-width calc with reverse', () => {
       expect(divideX(makeParsed('divide-x', '4'))).toEqual({
-        'border-right-width': '0px',
-        'border-left-width': '4px',
+        properties: {
+          'border-left-width': 'calc(4px * calc(1 - var(--tw-divide-x-reverse, 0)))',
+          'border-right-width': 'calc(4px * var(--tw-divide-x-reverse, 0))',
+        },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
       });
     });
 
-    it('divide-x-8 → border-right: 0px, border-left: 8px', () => {
+    it('divide-x-8 → border-left-width calc with reverse', () => {
       expect(divideX(makeParsed('divide-x', '8'))).toEqual({
-        'border-right-width': '0px',
-        'border-left-width': '8px',
+        properties: {
+          'border-left-width': 'calc(8px * calc(1 - var(--tw-divide-x-reverse, 0)))',
+          'border-right-width': 'calc(8px * var(--tw-divide-x-reverse, 0))',
+        },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
       });
     });
 
-    it('divide-y (no value) → border-bottom: 0px, border-top: 1px', () => {
+    it('divide-y (no value) → border-top-width calc with reverse', () => {
       expect(divideY(makeParsed('divide-y'))).toEqual({
-        'border-bottom-width': '0px',
-        'border-top-width': '1px',
+        properties: {
+          'border-top-width': 'calc(1px * calc(1 - var(--tw-divide-y-reverse, 0)))',
+          'border-bottom-width': 'calc(1px * var(--tw-divide-y-reverse, 0))',
+        },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
       });
     });
 
-    it('divide-y-0 → border-bottom: 0px, border-top: 0px', () => {
+    it('divide-y-0 → border-top-width calc with reverse', () => {
       expect(divideY(makeParsed('divide-y', '0'))).toEqual({
-        'border-bottom-width': '0px',
-        'border-top-width': '0px',
+        properties: {
+          'border-top-width': 'calc(0px * calc(1 - var(--tw-divide-y-reverse, 0)))',
+          'border-bottom-width': 'calc(0px * var(--tw-divide-y-reverse, 0))',
+        },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
       });
     });
 
-    it('divide-y-4 → border-bottom: 0px, border-top: 4px', () => {
+    it('divide-y-4 → border-top-width calc with reverse', () => {
       expect(divideY(makeParsed('divide-y', '4'))).toEqual({
-        'border-bottom-width': '0px',
-        'border-top-width': '4px',
+        properties: {
+          'border-top-width': 'calc(4px * calc(1 - var(--tw-divide-y-reverse, 0)))',
+          'border-bottom-width': 'calc(4px * var(--tw-divide-y-reverse, 0))',
+        },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
       });
     });
 
-    it('divide-y-8 → border-bottom: 0px, border-top: 8px', () => {
+    it('divide-y-8 → border-top-width calc with reverse', () => {
       expect(divideY(makeParsed('divide-y', '8'))).toEqual({
-        'border-bottom-width': '0px',
-        'border-top-width': '8px',
+        properties: {
+          'border-top-width': 'calc(8px * calc(1 - var(--tw-divide-y-reverse, 0)))',
+          'border-bottom-width': 'calc(8px * var(--tw-divide-y-reverse, 0))',
+        },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+      });
+    });
+
+    it('generateCSS for divide-x-4 should apply selector suffix', () => {
+      const parsed: ParsedClass = { utility: 'divide-x', value: '4', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'divide-x-4');
+      expect(rule).not.toBeNull();
+      expect(rule!.selector).toBe('.divide-x-4 > :not([hidden]) ~ :not([hidden])');
+      expect(rule!.properties).toEqual({
+        'border-left-width': 'calc(4px * calc(1 - var(--tw-divide-x-reverse, 0)))',
+        'border-right-width': 'calc(4px * var(--tw-divide-x-reverse, 0))',
+      });
+    });
+
+    it('generateCSS for divide-y-4 should apply selector suffix', () => {
+      const parsed: ParsedClass = { utility: 'divide-y', value: '4', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'divide-y-4');
+      expect(rule).not.toBeNull();
+      expect(rule!.selector).toBe('.divide-y-4 > :not([hidden]) ~ :not([hidden])');
+      expect(rule!.properties).toEqual({
+        'border-top-width': 'calc(4px * calc(1 - var(--tw-divide-y-reverse, 0)))',
+        'border-bottom-width': 'calc(4px * var(--tw-divide-y-reverse, 0))',
       });
     });
   });
 
   describe('Divide Style', () => {
-    it('divide-solid → border-style: solid', () => {
-      expect(divideSolid(makeParsed('divide-solid'))).toEqual({ 'border-style': 'solid' });
+    it('divide-solid → border-style: solid with divide selector suffix', () => {
+      expect(divideSolid(makeParsed('divide-solid'))).toEqual({
+        properties: { 'border-style': 'solid' },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+      });
     });
 
-    it('divide-dashed → border-style: dashed', () => {
-      expect(divideDashed(makeParsed('divide-dashed'))).toEqual({ 'border-style': 'dashed' });
+    it('divide-dashed → border-style: dashed with divide selector suffix', () => {
+      expect(divideDashed(makeParsed('divide-dashed'))).toEqual({
+        properties: { 'border-style': 'dashed' },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+      });
     });
 
-    it('divide-dotted → border-style: dotted', () => {
-      expect(divideDotted(makeParsed('divide-dotted'))).toEqual({ 'border-style': 'dotted' });
+    it('divide-dotted → border-style: dotted with divide selector suffix', () => {
+      expect(divideDotted(makeParsed('divide-dotted'))).toEqual({
+        properties: { 'border-style': 'dotted' },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+      });
     });
 
-    it('divide-double → border-style: double', () => {
-      expect(divideDouble(makeParsed('divide-double'))).toEqual({ 'border-style': 'double' });
+    it('divide-double → border-style: double with divide selector suffix', () => {
+      expect(divideDouble(makeParsed('divide-double'))).toEqual({
+        properties: { 'border-style': 'double' },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+      });
     });
 
-    it('divide-none → border-style: none', () => {
-      expect(divideNone(makeParsed('divide-none'))).toEqual({ 'border-style': 'none' });
+    it('divide-none → border-style: none with divide selector suffix', () => {
+      expect(divideNone(makeParsed('divide-none'))).toEqual({
+        properties: { 'border-style': 'none' },
+        selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+      });
+    });
+
+    it('generateCSS for divide-solid should apply selector suffix', () => {
+      const parsed: ParsedClass = { utility: 'divide-solid', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'divide-solid');
+      expect(rule).not.toBeNull();
+      expect(rule!.selector).toBe('.divide-solid > :not([hidden]) ~ :not([hidden])');
+      expect(rule!.properties).toEqual({ 'border-style': 'solid' });
     });
   });
 

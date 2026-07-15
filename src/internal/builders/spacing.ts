@@ -252,7 +252,12 @@ const spaceX: UtilityGenerator = (parsed) => {
   const value = resolveSpacingValue(parsed);
   if (!value) return null;
   const v = applyNegative(value, parsed);
-  return { 'margin-inline-start': v };
+  return {
+    properties: {
+      'margin-inline-start': `calc(${v} * calc(1 - 2 * var(--tw-space-x-reverse, 0)))`,
+    },
+    selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+  };
 };
 
 /**
@@ -263,7 +268,12 @@ const spaceY: UtilityGenerator = (parsed) => {
   const value = resolveSpacingValue(parsed);
   if (!value) return null;
   const v = applyNegative(value, parsed);
-  return { 'margin-top': v };
+  return {
+    properties: {
+      'margin-top': `calc(${v} * calc(1 - 2 * var(--tw-space-y-reverse, 0)))`,
+    },
+    selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+  };
 };
 
 // ─── Registration ─────────────────────────────────────────────────────────────

@@ -42,6 +42,8 @@ const KNOWN_COMPOUND_VALUES = new Set([
   'left-bottom', 'left-top', 'right-bottom', 'right-top',
   // Grid flow values
   'row-dense', 'col-dense',
+  // Object-fit compound value
+  'scale-down',
 ]);
 
 /**

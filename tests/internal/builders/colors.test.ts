@@ -114,11 +114,18 @@ describe('Color Utilities Builder', () => {
       }
     });
 
+    it('should register divide-{family} utilities for each color family', () => {
+      for (const family of COLOR_FAMILIES) {
+        expect(getUtility(`divide-${family}`)).toBeDefined();
+      }
+    });
+
     it('should register special color utilities', () => {
       for (const name of Object.keys(SPECIAL_COLORS)) {
         expect(getUtility(`text-${name}`)).toBeDefined();
         expect(getUtility(`bg-${name}`)).toBeDefined();
         expect(getUtility(`border-${name}`)).toBeDefined();
+        expect(getUtility(`divide-${name}`)).toBeDefined();
       }
     });
   });
@@ -255,6 +262,38 @@ describe('Color Utilities Builder', () => {
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
         'border-color': 'oklch(0.925 0.084 155.995)',
+      });
+    });
+  });
+
+  describe('divide color generation', () => {
+    it('should generate divide-red-500 with selector suffix', () => {
+      const parsed = parseClassName('divide-red-500');
+      const rule = generateCSS(parsed, 'divide-red-500');
+      expect(rule).not.toBeNull();
+      expect(rule!.selector).toBe('.divide-red-500 > :not([hidden]) ~ :not([hidden])');
+      expect(rule!.properties).toEqual({
+        'border-color': 'oklch(0.637 0.237 25.331)',
+      });
+    });
+
+    it('should generate divide-sky-400/50 with selector suffix', () => {
+      const parsed = parseClassName('divide-sky-400/50');
+      const rule = generateCSS(parsed, 'divide-sky-400/50');
+      expect(rule).not.toBeNull();
+      expect(rule!.selector).toBe('.divide-sky-400\\/50 > :not([hidden]) ~ :not([hidden])');
+      expect(rule!.properties).toEqual({
+        'border-color': 'oklch(0.746 0.16 232.661 / 50%)',
+      });
+    });
+
+    it('should generate divide-white with selector suffix', () => {
+      const parsed = parseClassName('divide-white');
+      const rule = generateCSS(parsed, 'divide-white');
+      expect(rule).not.toBeNull();
+      expect(rule!.selector).toBe('.divide-white > :not([hidden]) ~ :not([hidden])');
+      expect(rule!.properties).toEqual({
+        'border-color': 'oklch(1 0 0)',
       });
     });
   });

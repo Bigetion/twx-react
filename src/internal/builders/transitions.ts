@@ -6,6 +6,7 @@
  */
 
 import { registerUtilities, type UtilityGenerator } from '../generator';
+import { injectCSS } from '../injector';
 
 // ─── Duration Scale ───────────────────────────────────────────────────────────
 
@@ -100,6 +101,32 @@ const ANIMATIONS: Record<string, string> = {
   'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
   'bounce': 'bounce 1s infinite',
 };
+
+const ANIMATION_KEYFRAMES: Record<string, string> = {
+  spin: `@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}`,
+  ping: `@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}`,
+  pulse: `@keyframes pulse {
+  50% { opacity: 0.5; }
+}`,
+  bounce: `@keyframes bounce {
+  0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+  50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+}`,
+};
+
+const injectedAnimationKeyframes = new Set<string>();
+
+function injectAnimationKeyframes(name: string): void {
+  const keyframes = ANIMATION_KEYFRAMES[name];
+  if (!keyframes || injectedAnimationKeyframes.has(name)) return;
+  injectedAnimationKeyframes.add(name);
+  injectCSS(keyframes);
+}
 
 // ─── Transition Property Generator ───────────────────────────────────────────
 
@@ -217,6 +244,7 @@ const animateGenerator: UtilityGenerator = (parsed) => {
   const animation = ANIMATIONS[parsed.value];
   if (!animation) return null;
 
+  injectAnimationKeyframes(parsed.value);
   return { animation };
 };
 

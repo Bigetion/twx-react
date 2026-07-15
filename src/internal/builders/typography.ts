@@ -248,6 +248,35 @@ export function registerTypographyUtilities(): void {
     })],
   ]);
 
+    // ── Antialiasing utilities ───────────────────────────────────────────────
+    registerUtilities([
+      ['antialiased', () => ({ '-webkit-font-smoothing': 'antialiased', '-moz-osx-font-smoothing': 'grayscale' })],
+      ['subpixel-antialiased', () => ({ '-webkit-font-smoothing': 'auto', '-moz-osx-font-smoothing': 'auto' })],
+    ]);
+
+    // ── Italic utilities ──────────────────────────────────────────────────────
+    registerUtilities([
+      ['italic', () => ({ 'font-style': 'italic' })],
+      ['not-italic', () => ({ 'font-style': 'normal' })],
+    ]);
+
+    // ── Line clamp utilities (simple implementation) ──────────────────────────
+    registerUtility('line-clamp', (parsed: ParsedClass) => {
+      if (!parsed.value) return null;
+      if (parsed.value === 'none') return { 'overflow': 'visible' };
+      // numeric clamp values
+      const n = parseInt(parsed.value, 10);
+      if (!isNaN(n) && n > 0) {
+        return {
+          display: '-webkit-box',
+          '-webkit-line-clamp': String(n),
+          '-webkit-box-orient': 'vertical',
+          overflow: 'hidden',
+        } as any;
+      }
+      return null;
+    });
+
   // ── Whitespace utilities ───────────────────────────────────────────────────
   // Parser splits on last hyphen:
   // "whitespace-normal" → utility: "whitespace", value: "normal"
@@ -271,6 +300,43 @@ export function registerTypographyUtilities(): void {
 
     return null;
   });
+
+  // ── Text decoration style / thickness / color helpers ───────────────────
+  registerUtility('decoration', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    const styles = ['solid','dashed','dotted','double','wavy'];
+    if (styles.includes(parsed.value)) return { 'text-decoration-style': parsed.value };
+
+    // thickness values: 1,2,4
+    const thicknessMap: Record<string,string> = { '1':'1px','2':'2px','4':'4px' };
+    if (parsed.value in thicknessMap) return { 'text-decoration-thickness': thicknessMap[parsed.value] };
+
+    return null;
+  });
+
+  // ── Overflow / white-space helpers ──────────────────────────────────────
+  registerUtilities([
+    ['overflow-ellipsis', () => ({ 'text-overflow': 'ellipsis' })],
+    ['text-wrap', () => ({ 'white-space': 'normal', 'overflow-wrap': 'break-word' })],
+    ['text-nowrap', () => ({ 'white-space': 'nowrap' })],
+  ]);
+
+  // ── Vertical align utilities (align-*) ──────────────────────────────────
+  const VALIGN: Record<string,string> = {
+    'baseline':'baseline','top':'top','middle':'middle','bottom':'bottom','text-top':'text-top','text-bottom':'text-bottom','sub':'sub','super':'super'
+  };
+  registerUtility('align', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    const v = VALIGN[parsed.value];
+    if (!v) return null;
+    return { 'vertical-align': v };
+  });
+
+  // ── Accessibility: sr-only / not-sr-only ─────────────────────────────────
+  registerUtilities([
+    ['sr-only', () => ({ position: 'absolute', width: '1px', height: '1px', padding: '0', margin: '-1px', overflow: 'hidden', 'clip': 'rect(0,0,0,0)', 'white-space':'nowrap', 'border-width':'0' })],
+    ['not-sr-only', () => ({ position: 'static', width: 'auto', height: 'auto', overflow: 'visible', clip: 'auto', 'white-space': 'normal' })],
+  ]);
 
   registerUtility('whitespace-pre', (parsed: ParsedClass): Record<string, string> | null => {
     if (parsed.value === 'line') {

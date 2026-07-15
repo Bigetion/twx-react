@@ -132,6 +132,15 @@ describe('Effects Utilities Builder', () => {
         'box-shadow': '0 0 #0000',
       });
     });
+
+    it('generates arbitrary shadow value', () => {
+      const parsed = parseClassName('shadow-[4px_4px_0_0_rgba(0,0,0,0.1)]');
+      const rule = generateCSS(parsed, 'shadow-[4px_4px_0_0_rgba(0,0,0,0.1)]');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({
+        'box-shadow': '4px 4px 0 0 rgba(0,0,0,0.1)',
+      });
+    });
   });
 
   // ─── Inset Shadow (Tailwind v4) ───────────────────────────────────────────

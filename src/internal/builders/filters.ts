@@ -187,6 +187,12 @@ const grayscaleGenerator: UtilityGenerator = (parsed) => {
     return { filter: `grayscale(${parsed.value.slice(1, -1)})` };
   }
 
+  // Numeric percentages like `grayscale-50` → 0.5
+  if (/^\d+$/.test(parsed.value)) {
+    const v = Number(parsed.value);
+    if (!Number.isNaN(v)) return { filter: `grayscale(${v / 100})` };
+  }
+
   return null;
 };
 
@@ -201,6 +207,12 @@ const invertGenerator: UtilityGenerator = (parsed) => {
 
   if (parsed.value === '0') {
     return { filter: 'invert(0)' };
+  }
+
+  // Numeric percentages like `invert-50` → 0.5
+  if (/^\d+$/.test(parsed.value)) {
+    const v = Number(parsed.value);
+    if (!Number.isNaN(v)) return { filter: `invert(${v / 100})` };
   }
 
   // Arbitrary value: invert-[0.5]
@@ -222,6 +234,12 @@ const sepiaGenerator: UtilityGenerator = (parsed) => {
 
   if (parsed.value === '0') {
     return { filter: 'sepia(0)' };
+  }
+
+  // Numeric percentages like `sepia-50` → 0.5
+  if (/^\d+$/.test(parsed.value)) {
+    const v = Number(parsed.value);
+    if (!Number.isNaN(v)) return { filter: `sepia(${v / 100})` };
   }
 
   // Arbitrary value: sepia-[0.5]
@@ -282,7 +300,7 @@ const dropShadowGenerator: UtilityGenerator = (parsed) => {
 
   // Arbitrary value: drop-shadow-[0_4px_6px_rgba(0,0,0,0.1)]
   if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
-    return { filter: `drop-shadow(${parsed.value.slice(1, -1)})` };
+    return { filter: `drop-shadow(${parsed.value.slice(1, -1).replace(/_/g, ' ')})` };
   }
 
   const shadow = DROP_SHADOW_SCALE[parsed.value];

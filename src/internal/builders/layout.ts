@@ -300,4 +300,196 @@ export function registerLayoutUtilities(): void {
     }
     return null;
   });
+
+  // ── Object-Fit Utilities ─────────────────────────────────────────────────
+  const OBJECT_FIT_VALUES: Record<string, string> = {
+    contain: 'contain',
+    cover: 'cover',
+    fill: 'fill',
+    none: 'none',
+    'scale-down': 'scale-down',
+  };
+
+  // object-position map: map hyphenated tokens to CSS object-position values
+  const OBJECT_POSITION_VALUES: Record<string, string> = {
+    center: 'center',
+    top: 'top',
+    bottom: 'bottom',
+    left: 'left',
+    right: 'right',
+    'left-top': 'left top',
+    'left-bottom': 'left bottom',
+    'right-top': 'right top',
+    'right-bottom': 'right bottom',
+  };
+
+  registerUtility('object', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+
+    // Prefer fit values first
+    const fit = OBJECT_FIT_VALUES[parsed.value];
+    if (fit) return { 'object-fit': fit } as Record<string, string>;
+
+    // Then position values
+    const pos = OBJECT_POSITION_VALUES[parsed.value];
+    if (pos) return { 'object-position': pos } as Record<string, string>;
+
+    return null;
+  });
+
+  // ── Aspect Ratio Utilities ───────────────────────────────────────────────
+  // Supports: aspect-auto, aspect-square (1/1), aspect-video (16/9), aspect-[x/y]
+  registerUtility('aspect', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+
+    // Arbitrary ratio like "[4/3]"
+    if (parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
+      const inner = parsed.value.slice(1, -1).trim();
+      if (!inner) return null;
+      // Normalize to CSS aspect-ratio format
+      const normalized = inner.includes('/') ? inner : inner;
+      return { 'aspect-ratio': normalized };
+    }
+
+    if (parsed.value === 'auto') return { 'aspect-ratio': 'auto' };
+    if (parsed.value === 'square') return { 'aspect-ratio': '1 / 1' };
+    if (parsed.value === 'video') return { 'aspect-ratio': '16 / 9' };
+
+    return null;
+  });
+
+  // ── Columns Utilities ────────────────────────────────────────────────────
+  // Supports: columns-1 .. columns-12, columns-auto, and arbitrary widths like columns-[200px]
+  registerUtility('columns', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+
+    // Arbitrary width: columns-[200px]
+    if (parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
+      const inner = parsed.value.slice(1, -1).trim();
+      if (!inner) return null;
+      // Use the shorthand 'columns' to accept either width or count
+      return { columns: inner } as Record<string, string>;
+    }
+
+    if (parsed.value === 'auto') return { columns: 'auto' } as Record<string, string>;
+
+    // Numeric column count
+    if (/^\d+$/.test(parsed.value)) {
+      return { 'column-count': parsed.value } as Record<string, string>;
+    }
+
+    return null;
+  });
+
+  // ── Visibility Utilities (standalone class names) ───────────────────────
+  registerUtilities([
+    ['visible', () => ({ visibility: 'visible' })],
+    ['invisible', () => ({ visibility: 'hidden' })],
+    ['collapse', () => ({ visibility: 'collapse' })],
+  ]);
+
+  // ── Overscroll Behavior ────────────────────────────────────────────────
+  const OVERSCROLL_VALUES = ['auto', 'contain', 'none'] as const;
+  registerUtility('overscroll', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    if ((OVERSCROLL_VALUES as readonly string[]).includes(parsed.value)) {
+      return { 'overscroll-behavior': parsed.value };
+    }
+    return null;
+  });
+  registerUtility('overscroll-x', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    if ((OVERSCROLL_VALUES as readonly string[]).includes(parsed.value)) {
+      return { 'overscroll-behavior-x': parsed.value };
+    }
+    return null;
+  });
+  registerUtility('overscroll-y', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    if ((OVERSCROLL_VALUES as readonly string[]).includes(parsed.value)) {
+      return { 'overscroll-behavior-y': parsed.value };
+    }
+    return null;
+  });
+
+  // ── Float & Clear ──────────────────────────────────────────────────────
+  const FLOAT_VALUES: Record<string, string> = {
+    left: 'left',
+    right: 'right',
+    none: 'none',
+    'start': 'inline-start',
+    'end': 'inline-end',
+  };
+  registerUtility('float', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    const v = FLOAT_VALUES[parsed.value];
+    if (!v) return null;
+    return { float: v };
+  });
+
+  const CLEAR_VALUES: Record<string, string> = {
+    left: 'left',
+    right: 'right',
+    both: 'both',
+    none: 'none',
+  };
+  registerUtility('clear', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    const v = CLEAR_VALUES[parsed.value];
+    if (!v) return null;
+    return { clear: v };
+  });
+
+  // ── Isolation ──────────────────────────────────────────────────────────
+  registerUtilities([
+    ['isolate', () => ({ isolation: 'isolate' })],
+  ]);
+  registerUtility('isolation', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    if (parsed.value === 'auto') return { isolation: 'auto' };
+    return null;
+  });
+
+  // ── Box Sizing (standalone classes: box-border / box-content) ───────────
+  registerUtilities([
+    ['box-border', () => ({ 'box-sizing': 'border-box' })],
+    ['box-content', () => ({ 'box-sizing': 'content-box' })],
+  ]);
+
+  // ── Box Decoration Break ───────────────────────────────────────────────
+  registerUtility('box-decoration-break', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    if (parsed.value === 'slice') return { 'box-decoration-break': 'slice' };
+    if (parsed.value === 'clone') return { 'box-decoration-break': 'clone' };
+    return null;
+  });
+
+  // ── Column / Page Breaks ───────────────────────────────────────────────
+  const BREAK_VALUES = new Set(['auto','avoid','avoid-column','all','page']);
+  registerUtility('break-after', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    if (BREAK_VALUES.has(parsed.value)) return { 'break-after': parsed.value };
+    return null;
+  });
+  registerUtility('break-before', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    if (BREAK_VALUES.has(parsed.value)) return { 'break-before': parsed.value };
+    return null;
+  });
+  registerUtility('break-inside', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+    if (BREAK_VALUES.has(parsed.value) || parsed.value === 'avoid-column') return { 'break-inside': parsed.value };
+    return null;
+  });
+
+  // ── Space reverse variables (used by space-x / space-y implementations)
+  registerUtility('space-x-reverse', () => ({ '--tw-space-x-reverse': '1' }));
+  registerUtility('space-y-reverse', () => ({ '--tw-space-y-reverse': '1' }));
+
+  // Small helpers missing from coverage page
+  registerUtilities([
+    ['align-text-top', () => ({ 'vertical-align': 'text-top' })],
+    ['align-text-bottom', () => ({ 'vertical-align': 'text-bottom' })],
+    ['break-inside-avoid-column', () => ({ 'break-inside': 'avoid-column' })],
+  ]);
 }

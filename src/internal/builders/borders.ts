@@ -220,38 +220,69 @@ const roundedBottomRight: UtilityGenerator = (parsed: ParsedClass) => {
 
 /**
  * divide-x → Applied on > :not([hidden]) ~ :not([hidden])
- * Sets border-right-width: 0px; border-left-width: Npx
+ * Uses reverse variable to flip border direction when needed.
  */
 const divideX: UtilityGenerator = (parsed: ParsedClass) => {
   const width = resolveBorderWidth(parsed.value);
   if (width === null) return null;
-  return { 'border-right-width': '0px', 'border-left-width': width };
+
+  return {
+    properties: {
+      'border-left-width': `calc(${width} * calc(1 - var(--tw-divide-x-reverse, 0)))`,
+      'border-right-width': `calc(${width} * var(--tw-divide-x-reverse, 0))`,
+    },
+    selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+  };
 };
 
 /**
  * divide-y → Applied on > :not([hidden]) ~ :not([hidden])
- * Sets border-bottom-width: 0px; border-top-width: Npx
+ * Uses reverse variable to flip border direction when needed.
  */
 const divideY: UtilityGenerator = (parsed: ParsedClass) => {
   const width = resolveBorderWidth(parsed.value);
   if (width === null) return null;
-  return { 'border-bottom-width': '0px', 'border-top-width': width };
+
+  return {
+    properties: {
+      'border-top-width': `calc(${width} * calc(1 - var(--tw-divide-y-reverse, 0)))`,
+      'border-bottom-width': `calc(${width} * var(--tw-divide-y-reverse, 0))`,
+    },
+    selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
+  };
 };
 
+const DIVIDE_SELECTOR_SUFFIX = ' > :not([hidden]) ~ :not([hidden])';
+
 /** divide-solid → border-style: solid */
-const divideSolid: UtilityGenerator = () => ({ 'border-style': 'solid' });
+const divideSolid: UtilityGenerator = () => ({
+  properties: { 'border-style': 'solid' },
+  selectorSuffix: DIVIDE_SELECTOR_SUFFIX,
+});
 
 /** divide-dashed → border-style: dashed */
-const divideDashed: UtilityGenerator = () => ({ 'border-style': 'dashed' });
+const divideDashed: UtilityGenerator = () => ({
+  properties: { 'border-style': 'dashed' },
+  selectorSuffix: DIVIDE_SELECTOR_SUFFIX,
+});
 
 /** divide-dotted → border-style: dotted */
-const divideDotted: UtilityGenerator = () => ({ 'border-style': 'dotted' });
+const divideDotted: UtilityGenerator = () => ({
+  properties: { 'border-style': 'dotted' },
+  selectorSuffix: DIVIDE_SELECTOR_SUFFIX,
+});
 
 /** divide-double → border-style: double */
-const divideDouble: UtilityGenerator = () => ({ 'border-style': 'double' });
+const divideDouble: UtilityGenerator = () => ({
+  properties: { 'border-style': 'double' },
+  selectorSuffix: DIVIDE_SELECTOR_SUFFIX,
+});
 
 /** divide-none → border-style: none */
-const divideNone: UtilityGenerator = () => ({ 'border-style': 'none' });
+const divideNone: UtilityGenerator = () => ({
+  properties: { 'border-style': 'none' },
+  selectorSuffix: DIVIDE_SELECTOR_SUFFIX,
+});
 
 // ─── Outline Generators ───────────────────────────────────────────────────────
 
@@ -362,6 +393,10 @@ export function registerBorderUtilities(): void {
     ['divide-dotted', divideDotted],
     ['divide-double', divideDouble],
     ['divide-none', divideNone],
+
+    // Divide reverse variables
+    ['divide-x-reverse', () => ({ '--tw-divide-x-reverse': '1' })],
+    ['divide-y-reverse', () => ({ '--tw-divide-y-reverse': '1' })],
 
     // Outline utilities
     ['outline', outlineGenerator],

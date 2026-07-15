@@ -8,6 +8,7 @@
 
 import { registerUtility, registerUtilities } from '../generator';
 import type { ParsedClass } from '../parser';
+import { NUMERIC_SCALE, FRACTION_VALUES } from './sizing';
 
 // ─── Flex Direction Utilities ────────────────────────────────────────────────
 
@@ -286,6 +287,28 @@ export function registerFlexboxUtilities(): void {
     if (!isNaN(num) && num >= 1 && num <= 12) {
       return { order: String(num) };
     }
+
+    return null;
+  });
+
+  // ── Flex-basis utilities (basis-*) ────────────────────────────────────────
+  registerUtility('basis', (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+
+    // Arbitrary value
+    if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
+      return { 'flex-basis': parsed.value.slice(1, -1) };
+    }
+
+    // Special keywords
+    if (parsed.value === 'auto') return { 'flex-basis': 'auto' };
+    if (parsed.value === 'full') return { 'flex-basis': '100%' };
+
+    // Numeric scale
+    if (parsed.value in NUMERIC_SCALE) return { 'flex-basis': NUMERIC_SCALE[parsed.value] };
+
+    // Fraction values
+    if (parsed.value in FRACTION_VALUES) return { 'flex-basis': FRACTION_VALUES[parsed.value] };
 
     return null;
   });

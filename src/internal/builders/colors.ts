@@ -6,7 +6,7 @@
  */
 
 import type { ParsedClass } from '../parser';
-import { registerUtilities, type UtilityGenerator } from '../generator';
+import { registerUtilities, registerUtility, type UtilityGenerator, type UtilityGeneratorOutput } from '../generator';
 
 // ─── OKLCH Color Palette ──────────────────────────────────────────────────────
 
@@ -409,6 +409,8 @@ export function resolveColor(family: string, shade: string, opacity?: string): s
  * @param family - The color family name (e.g., "blue")
  * @param cssProperty - The CSS property to set (e.g., "color", "background-color")
  */
+const DIVIDE_SELECTOR_SUFFIX = ' > :not([hidden]) ~ :not([hidden])';
+
 function createColorGenerator(family: string, cssProperty: string): UtilityGenerator {
   return (parsed: ParsedClass) => {
     if (!parsed.value) return null;
@@ -433,6 +435,28 @@ function createColorGenerator(family: string, cssProperty: string): UtilityGener
   };
 }
 
+function createDivideColorGenerator(family: string, cssProperty: string): UtilityGenerator {
+  return (parsed: ParsedClass) => {
+    if (!parsed.value) return null;
+
+    let shade = parsed.value;
+    let opacity: string | undefined;
+    if (shade.includes('/')) {
+      const parts = shade.split('/');
+      shade = parts[0];
+      opacity = parts[1];
+    }
+
+    const colorValue = resolveColor(family, shade, opacity);
+    if (!colorValue) return null;
+
+    return {
+      properties: { [cssProperty]: colorValue },
+      selectorSuffix: DIVIDE_SELECTOR_SUFFIX,
+    };
+  };
+}
+
 /**
  * Create a utility generator for special colors (white, black, transparent, etc.)
  *
@@ -443,6 +467,13 @@ function createSpecialColorGenerator(color: string, cssProperty: string): Utilit
   return (_parsed: ParsedClass) => {
     return { [cssProperty]: color };
   };
+}
+
+function createSpecialDivideColorGenerator(color: string, cssProperty: string): UtilityGenerator {
+  return (_parsed: ParsedClass) => ({
+    properties: { [cssProperty]: color },
+    selectorSuffix: DIVIDE_SELECTOR_SUFFIX,
+  });
 }
 
 /**
@@ -469,6 +500,47 @@ function createRingColorGenerator(family: string): UtilityGenerator {
 
     // Stacked shadow: 2px white offset + 3px ring with color
     return { 'box-shadow': `0 0 0 2px #fff, 0 0 0 5px ${colorValue}` };
+  };
+}
+
+/**
+ * Create a shadow color generator for a color family.
+ * shadow-{family}-{shade} -> box-shadow using family color
+ */
+function createShadowColorGenerator(family: string): UtilityGenerator {
+  return (parsed) => {
+    if (!parsed.value) return null;
+    let shade = parsed.value;
+    let opacity: string | undefined;
+    if (shade.includes('/')) {
+      const parts = shade.split('/');
+      shade = parts[0];
+      opacity = parts[1];
+    }
+    const colorValue = resolveColor(family, shade, opacity);
+    if (!colorValue) return null;
+    // Basic shadow using the color at 0.1 opacity if possible
+    return { 'box-shadow': `0 1px 3px 0 ${colorValue}, 0 1px 2px -1px ${colorValue}` };
+  };
+}
+
+/**
+ * Create a text-shadow color generator for a color family.
+ * text-shadow-{family}-{shade}
+ */
+function createTextShadowColorGenerator(family: string): UtilityGenerator {
+  return (parsed) => {
+    if (!parsed.value) return null;
+    let shade = parsed.value;
+    let opacity: string | undefined;
+    if (shade.includes('/')) {
+      const parts = shade.split('/');
+      shade = parts[0];
+      opacity = parts[1];
+    }
+    const colorValue = resolveColor(family, shade, opacity);
+    if (!colorValue) return null;
+    return { 'text-shadow': `0 2px 4px ${colorValue}` };
   };
 }
 
@@ -509,6 +581,26 @@ export function registerColorUtilities(): void {
     entries.push([`bg-${family}`, createColorGenerator(family, 'background-color')]);
     entries.push([`border-${family}`, createColorGenerator(family, 'border-color')]);
     entries.push([`ring-${family}`, createRingColorGenerator(family)]);
+    // Additional color-aware utilities
+    entries.push([`fill-${family}`, createColorGenerator(family, 'fill')]);
+    entries.push([`stroke-${family}`, createColorGenerator(family, 'stroke')]);
+    entries.push([`caret-${family}`, createColorGenerator(family, 'caret-color')]);
+    entries.push([`accent-${family}`, createColorGenerator(family, 'accent-color')]);
+    entries.push([`outline-${family}`, createColorGenerator(family, 'outline-color')]);
+    entries.push([`divide-${family}`, createDivideColorGenerator(family, 'border-color')]);
+  }
+
+  // Register shadow and text-shadow color variants
+  for (const family of COLOR_FAMILIES) {
+    entries.push([`shadow-${family}`, createShadowColorGenerator(family)]);
+    entries.push([`text-shadow-${family}`, createTextShadowColorGenerator(family)]);
+  }
+
+  // Gradient stop helpers: from-/via-/to-
+  for (const family of COLOR_FAMILIES) {
+    entries.push([`from-${family}`, createColorGenerator(family, '--tw-gradient-from')]);
+    entries.push([`to-${family}`, createColorGenerator(family, '--tw-gradient-to')]);
+    entries.push([`via-${family}`, createColorGenerator(family, '--tw-gradient-stops')]);
   }
 
   // Register special color utilities
@@ -517,7 +609,33 @@ export function registerColorUtilities(): void {
     entries.push([`bg-${name}`, createSpecialColorGenerator(value, 'background-color')]);
     entries.push([`border-${name}`, createSpecialColorGenerator(value, 'border-color')]);
     entries.push([`ring-${name}`, createSpecialRingColorGenerator(value)]);
+    entries.push([`fill-${name}`, createSpecialColorGenerator(value, 'fill')]);
+    entries.push([`stroke-${name}`, createSpecialColorGenerator(value, 'stroke')]);
+    entries.push([`caret-${name}`, createSpecialColorGenerator(value, 'caret-color')]);
+    entries.push([`accent-${name}`, createSpecialColorGenerator(value, 'accent-color')]);
+    entries.push([`outline-${name}`, createSpecialColorGenerator(value, 'outline-color')]);
+    entries.push([`divide-${name}`, createSpecialDivideColorGenerator(value, 'border-color')]);
   }
 
+  // entries will be registered after adding special colors and helpers
+
+  // stroke utility: widths and 'none'
+  registerUtility('stroke', (parsed): UtilityGeneratorOutput | null => {
+    if (!parsed.value) return null;
+    if (parsed.value === 'none') return { stroke: 'none' } as Record<string, string>;
+    if (/^\d+$/.test(parsed.value)) return { 'stroke-width': parsed.value } as Record<string, string>;
+    return null;
+  });
+
+  // fill utility: handle 'none' literal (color families already registered above)
+  registerUtility('fill', (parsed): UtilityGeneratorOutput | null => {
+    if (!parsed.value) return null;
+    if (parsed.value === 'none') return { fill: 'none' };
+    return null;
+  });
+
+  // bg-none helper
+  registerUtilities([['bg-none', (_p) => ({ 'background-image': 'none' })]]);
+  // Finally register accumulated entries
   registerUtilities(entries);
 }

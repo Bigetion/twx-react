@@ -27,9 +27,16 @@ export interface CSSRule {
  * A utility generator function that produces CSS properties from a parsed class.
  * Returns null if the utility/value combination is not handled.
  */
+export type UtilityGeneratorOutput =
+  | Record<string, string | undefined>
+  | ({ properties: Record<string, string | undefined> } & {
+      selectorSuffix?: string;
+      selectorPrefix?: string;
+    });
+
 export type UtilityGenerator = (
   parsedClass: ParsedClass
-) => Record<string, string> | null;
+) => UtilityGeneratorOutput | null;
 
 // ─── Responsive Breakpoints ──────────────────────────────────────────────────
 
@@ -378,21 +385,40 @@ export function generateCSS(parsedClass: ParsedClass, originalClassName?: string
     return null;
   }
 
-  // Generate CSS properties
-  let properties: Record<string, string> | null;
+  // Generate CSS properties and optional selector adjustments
+  let selectorSuffix: string | undefined;
+  let selectorPrefix: string | undefined;
+  let properties: Record<string, string> | null = null;
+
+  const resolveOutput = (output: UtilityGeneratorOutput | null): void => {
+    if (output === null) return;
+    if (
+      typeof output === 'object' &&
+      output !== null &&
+      'properties' in output &&
+      typeof (output as any).properties === 'object'
+    ) {
+      properties = (output as { properties: Record<string, string> }).properties;
+      selectorSuffix = (output as { selectorSuffix?: string }).selectorSuffix;
+      selectorPrefix = (output as { selectorPrefix?: string }).selectorPrefix;
+    } else {
+      properties = output as Record<string, string>;
+    }
+  };
+
   if (useCompound) {
     // For compound lookups, the value was part of the utility name
     const modifiedParsed = { ...parsedClass, value: undefined };
-    properties = generator(modifiedParsed);
+    resolveOutput(generator(modifiedParsed));
     if (!properties) {
       // Compound generator returned null — fall back to simple utility with the value
       const fallbackGenerator = utilityRegistry.get(parsedClass.utility);
       if (fallbackGenerator) {
-        properties = fallbackGenerator(parsedClass);
+        resolveOutput(fallbackGenerator(parsedClass));
       }
     }
   } else {
-    properties = generator(parsedClass);
+    resolveOutput(generator(parsedClass));
   }
 
   if (!properties) {
@@ -403,11 +429,12 @@ export function generateCSS(parsedClass: ParsedClass, originalClassName?: string
   const className = originalClassName || parsedClass.utility + (parsedClass.value ? `-${parsedClass.value}` : '');
 
   // Resolve variants to get selector, media query, and container query
-  const { selector, mediaQuery, containerQuery } = resolveVariants(
+  const { selector: baseSelector, mediaQuery, containerQuery } = resolveVariants(
     className,
     parsedClass.variants
   );
 
+  const selector = `${selectorPrefix || ''}${baseSelector}${selectorSuffix || ''}`;
   const rule: CSSRule = { selector, properties };
   if (mediaQuery) rule.mediaQuery = mediaQuery;
   if (containerQuery) rule.containerQuery = containerQuery;

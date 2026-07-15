@@ -55,4 +55,13 @@ describe('tw() utility function', () => {
     expect(css).toContain(':hover');
     expect(css).toContain('@media');
   });
+
+  it('should inject keyframes for built-in animations', () => {
+    tw('animate-spin');
+    const css = extractCriticalCSS();
+
+    expect(css).toContain('@keyframes spin');
+    expect(css).toContain('transform: rotate(360deg)');
+    expect(css).toContain('animation: spin 1s linear infinite');
+  });
 });

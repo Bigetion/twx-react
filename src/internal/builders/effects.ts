@@ -108,13 +108,35 @@ const shadowGenerator: UtilityGenerator = (parsed) => {
 
   // Arbitrary value: shadow-[0_4px_6px_rgba(0,0,0,0.1)]
   if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
-    return { 'box-shadow': parsed.value.slice(1, -1) };
+    return { 'box-shadow': parsed.value.slice(1, -1).replace(/_/g, ' ') };
   }
 
   const shadow = SHADOW_SCALE[parsed.value];
   if (!shadow) return null;
 
   return { 'box-shadow': shadow };
+};
+
+// ─── Text Shadow Generator ──────────────────────────────────────────────────
+
+/** text-shadow / text-shadow-* → text-shadow: value */
+const textShadowGenerator: UtilityGenerator = (parsed) => {
+  // No value → none (default)
+  if (!parsed.value) {
+    return { 'text-shadow': 'none' };
+  }
+
+  // Named sizes
+  if (parsed.value === 'sm') return { 'text-shadow': '0 1px 1px rgba(0,0,0,0.05)' };
+  if (parsed.value === 'DEFAULT' || parsed.value === 'md') return { 'text-shadow': '0 2px 4px rgba(0,0,0,0.1)' };
+  if (parsed.value === 'lg') return { 'text-shadow': '0 4px 8px rgba(0,0,0,0.12)' };
+
+  // Arbitrary value: text-shadow-[0_1px_2px_rgba(0,0,0,0.1)]
+  if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
+    return { 'text-shadow': parsed.value.slice(1, -1).replace(/_/g, ' ') };
+  }
+
+  return null;
 };
 
 // ─── Inset Shadow Generator (Tailwind v4) ─────────────────────────────────────
@@ -214,6 +236,9 @@ export function registerEffectsUtilities(): void {
 
     // Ring offset
     ['ring-offset', ringOffsetGenerator],
+    // Text shadow
+    ['text-shadow', textShadowGenerator],
+    // Shadow color variants (shadow-{family}-{shade}) will be registered by colors builder via dynamic generators
   ]);
 }
 
