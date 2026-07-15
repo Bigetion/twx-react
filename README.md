@@ -23,6 +23,54 @@ Requires React 17+ as a peer dependency.
 
 ## Quick Start
 
+### Option 1: tw.element syntax (Recommended) ✨
+
+The cleanest way to use twx-react is with `tw.element` components that automatically process Tailwind classes:
+
+```tsx
+import { tw } from 'twx-react';
+
+function App() {
+  return (
+    <tw.div className="flex flex-col gap-4 p-8">
+      <tw.h1 className="text-3xl font-bold text-gray-900">
+        Hello World
+      </tw.h1>
+      <tw.button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+        Click me
+      </tw.button>
+    </tw.div>
+  );
+}
+```
+
+**Benefits:**
+- ✅ Cleaner syntax - no `tw()` wrapper needed
+- ✅ Full TypeScript support for all HTML props
+- ✅ Automatic ref forwarding
+- ✅ Performance optimized with React.memo
+- ✅ Works with all HTML elements (`tw.div`, `tw.button`, `tw.input`, etc.)
+
+### Option 2: tw() function (Advanced)
+
+For third-party components or dynamic styles, use the `tw()` function:
+
+```tsx
+import { tw } from 'twx-react';
+import { Select } from 'third-party-ui';
+
+function Form() {
+  const isActive = true;
+  const dynamicClass = tw(`border rounded ${isActive ? 'bg-blue-500' : 'bg-gray-500'}`);
+  
+  return <Select className={tw('border rounded px-3')} />;
+}
+```
+
+### Option 3: createTwComponent (Advanced Patterns)
+
+For components with variants, use `createTwComponent`:
+
 ```tsx
 import { createTwComponent } from 'twx-react';
 
@@ -76,6 +124,84 @@ const Button = createTwComponent('button', {
 ---
 
 ## API Reference
+
+### `tw.element` Components
+
+Pre-built HTML element wrappers that automatically process Tailwind classes.
+
+```tsx
+import { tw } from 'twx-react';
+
+// All standard HTML elements are available
+<tw.div className="flex items-center gap-4">
+  <tw.img src="..." alt="..." className="w-12 h-12 rounded-full" />
+  <tw.span className="text-lg font-medium">John Doe</tw.span>
+</tw.div>
+
+// Form elements
+<tw.form className="space-y-4">
+  <tw.label htmlFor="email" className="block font-medium">Email</tw.label>
+  <tw.input 
+    type="email" 
+    id="email"
+    className="w-full border rounded px-3 py-2"
+  />
+  <tw.button type="submit" className="px-4 py-2 bg-blue-500 text-white">
+    Submit
+  </tw.button>
+</tw.form>
+
+// All HTML props work with full TypeScript support
+<tw.a href="/about" className="text-blue-500 hover:underline">About</tw.a>
+<tw.button onClick={handleClick} disabled={loading} className="...">
+  {loading ? 'Loading...' : 'Click me'}
+</tw.button>
+
+// Refs work automatically
+const divRef = useRef<HTMLDivElement>(null);
+<tw.div ref={divRef} className="w-full h-full" />
+```
+
+**Available elements:**
+- Layout: `div`, `span`, `section`, `article`, `header`, `footer`, `nav`, `main`, `aside`
+- Text: `p`, `h1-h6`, `strong`, `em`, `small`, `code`, `pre`
+- Lists: `ul`, `ol`, `li`, `dl`, `dt`, `dd`
+- Interactive: `button`, `a`, `label`, `input`, `textarea`, `select`, `option`
+- Media: `img`, `svg`, `video`, `audio`, `canvas`
+- Tables: `table`, `thead`, `tbody`, `tfoot`, `tr`, `th`, `td`
+- Forms: `form`, `fieldset`, `legend`
+- And all other standard HTML elements!
+
+---
+
+### `tw()` Function
+
+Process Tailwind classes for any element or component.
+
+```tsx
+import { tw } from 'twx-react';
+
+// For third-party components
+import { Select } from 'third-party-ui';
+<Select className={tw('border rounded px-3')} />
+
+// For dynamic/computed styles
+const buttonClass = tw(`
+  px-4 py-2 rounded-lg
+  ${variant === 'primary' ? 'bg-blue-500' : 'bg-gray-500'}
+  ${size === 'lg' ? 'text-lg' : 'text-sm'}
+`);
+<button className={buttonClass}>Click</button>
+
+// For reusable style strings
+const cardStyles = tw('bg-white rounded-lg shadow-lg p-6');
+const buttonStyles = tw('px-4 py-2 rounded');
+
+// Export and reuse
+export { cardStyles, buttonStyles };
+```
+
+---
 
 ### `createTwComponent(element, config)`
 

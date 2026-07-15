@@ -4,8 +4,10 @@ import { CardExamples } from '../../examples/card';
 import { TabsExamples } from '../../examples/tabs';
 import { ThemeSwitchingApp } from '../../examples/theme-switching';
 import { TypeScriptExamples } from '../../examples/typescript-usage';
+import { TwElementsExamples } from '../../examples/tw-elements';
 
 const tabs = [
+  { id: 'tw-elements', label: 'tw.elements ✨', component: TwElementsExamples },
   { id: 'button', label: 'Button', component: ButtonExamples },
   { id: 'card', label: 'Card', component: CardExamples },
   { id: 'tabs', label: 'Tabs', component: TabsExamples },
@@ -14,9 +16,9 @@ const tabs = [
 ] as const;
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<string>('button');
+  const [activeTab, setActiveTab] = useState<string>('tw-elements');
 
-  const ActiveComponent = tabs.find((t) => t.id === activeTab)?.component ?? ButtonExamples;
+  const ActiveComponent = tabs.find((t) => t.id === activeTab)?.component ?? TwElementsExamples;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

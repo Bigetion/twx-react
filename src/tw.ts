@@ -1,24 +1,31 @@
 /**
  * tw — Utility function for processing and injecting Tailwind CSS classes.
  *
- * Use this when applying Tailwind classes to raw HTML elements (not created
- * via `createTwComponent`). It parses each class token, generates the CSS,
- * and injects it into the DOM — then returns the original class string.
+ * The `tw` export serves dual purposes:
  *
- * For `createTwComponent`-created elements, CSS injection is automatic.
- * This function is for cases where you apply classes to plain `<div>`,
- * `<span>`, or other elements directly.
+ * 1. **As a function**: Process and inject Tailwind classes for any element
+ * 2. **As an object**: Pre-built HTML element wrappers (tw.div, tw.span, etc.)
  *
  * @example
  * ```tsx
  * import { tw } from 'twx-react';
  *
+ * // Recommended: Use tw.element for native HTML (cleaner)
  * function Layout() {
  *   return (
- *     <div className={tw('flex flex-col gap-6 p-8')}>
- *       <h1 className={tw('text-2xl font-bold')}>Hello</h1>
- *     </div>
+ *     <tw.div className="flex flex-col gap-6 p-8">
+ *       <tw.h1 className="text-2xl font-bold">Hello</tw.h1>
+ *       <tw.button className="px-4 py-2 bg-blue-500">Click</tw.button>
+ *     </tw.div>
  *   );
+ * }
+ *
+ * // Advanced: Use tw() function for third-party components or dynamic styles
+ * import { Select } from 'third-party-ui';
+ *
+ * function Form() {
+ *   const dynamicClass = tw(`border rounded ${isActive ? 'bg-blue-500' : 'bg-gray-500'}`);
+ *   return <Select className={tw('border rounded px-3')} />;
  * }
  * ```
  *
@@ -29,11 +36,16 @@
 import { parseClassName } from './internal/parser';
 import { generateCSSString } from './internal/generator';
 import { injectCSS } from './internal/injector';
+import { createTwElementsProxy, type TwElements } from './createTwElements';
 
 // Side-effect: ensure all utility builders are registered
 import './internal/init';
 
-export function tw(classString: string): string {
+/**
+ * Core tw function - processes Tailwind classes and injects CSS
+ * @internal
+ */
+function twFunction(classString: string): string {
   if (!classString) return '';
 
   const tokens = classString.split(/\s+/).filter(Boolean);
@@ -49,3 +61,18 @@ export function tw(classString: string): string {
 
   return classString;
 }
+
+/**
+ * Combined tw export: function + HTML element components
+ *
+ * Usage:
+ * - tw('class names') → returns processed string
+ * - tw.div, tw.span, etc. → React components with auto tw() processing
+ */
+export type TwExport = typeof twFunction & TwElements;
+
+// Create the combined export
+const twElements = createTwElementsProxy();
+const tw = Object.assign(twFunction, twElements) as TwExport;
+
+export { tw };
