@@ -1,3 +1,7 @@
+// Ensure the utility registry is populated so mergeClassNames can perform
+// real CSS-property-based conflict resolution (matches production usage,
+// since createTwComponent/useTwVariants always import this side-effect too).
+import '../../src/internal/init';
 import { resolveVariants, VariantsConfig } from '../../src/internal/variantsResolver';
 
 describe('resolveVariants', () => {
@@ -42,12 +46,14 @@ describe('resolveVariants', () => {
   describe('variant resolution from props', () => {
     it('should resolve a single variant from props', () => {
       const result = resolveVariants(buttonConfig, { size: 'lg', color: 'primary' });
-      expect(result).toBe('px-4 py-2 rounded font-medium text-lg px-6 py-3 bg-blue-500 text-white');
+      // base's `px-4 py-2` is superseded by the `lg` variant's `px-6 py-3`
+      expect(result).toBe('rounded font-medium text-lg px-6 py-3 bg-blue-500 text-white');
     });
 
     it('should resolve multiple variants from props', () => {
       const result = resolveVariants(buttonConfig, { size: 'sm', color: 'danger' });
-      expect(result).toBe('px-4 py-2 rounded font-medium text-sm px-2 py-1 bg-red-500 text-white');
+      // base's `px-4 py-2` is superseded by the `sm` variant's `px-2 py-1`
+      expect(result).toBe('rounded font-medium text-sm px-2 py-1 bg-red-500 text-white');
     });
 
     it('should ignore unknown variant values', () => {
@@ -58,26 +64,32 @@ describe('resolveVariants', () => {
 
     it('should ignore unknown variant names in props', () => {
       const result = resolveVariants(buttonConfig, { size: 'sm', color: 'primary', shape: 'round' } as any);
-      // 'shape' is not a defined variant, so it's ignored
-      expect(result).toBe('px-4 py-2 rounded font-medium text-sm px-2 py-1 bg-blue-500 text-white');
+      // 'shape' is not a defined variant, so it's ignored; base's `px-4 py-2`
+      // is superseded by the `sm` variant's `px-2 py-1`
+      expect(result).toBe('rounded font-medium text-sm px-2 py-1 bg-blue-500 text-white');
     });
   });
 
   describe('default variants', () => {
     it('should apply default variants when no props provided', () => {
       const result = resolveVariants(buttonConfig, {});
-      expect(result).toBe('px-4 py-2 rounded font-medium text-base px-4 py-2 bg-blue-500 text-white');
+      // The 'md' size variant's `px-4 py-2` targets the same CSS properties as
+      // the base classes' identical `px-4 py-2`, so the conflict resolver keeps
+      // only the later (variant) occurrence, in its original position.
+      expect(result).toBe('rounded font-medium text-base px-4 py-2 bg-blue-500 text-white');
     });
 
     it('should apply default variants for missing props', () => {
       const result = resolveVariants(buttonConfig, { size: 'lg' });
-      // size comes from props, color comes from defaults
-      expect(result).toBe('px-4 py-2 rounded font-medium text-lg px-6 py-3 bg-blue-500 text-white');
+      // size comes from props, color comes from defaults; base's `px-4 py-2`
+      // is superseded by the `lg` variant's `px-6 py-3`
+      expect(result).toBe('rounded font-medium text-lg px-6 py-3 bg-blue-500 text-white');
     });
 
     it('should override defaults when props are provided', () => {
       const result = resolveVariants(buttonConfig, { size: 'sm', color: 'secondary' });
-      expect(result).toBe('px-4 py-2 rounded font-medium text-sm px-2 py-1 bg-gray-200 text-gray-800');
+      // base's `px-4 py-2` is superseded by the `sm` variant's `px-2 py-1`
+      expect(result).toBe('rounded font-medium text-sm px-2 py-1 bg-gray-200 text-gray-800');
     });
 
     it('should work without defaultVariants in config', () => {
@@ -97,8 +109,9 @@ describe('resolveVariants', () => {
   describe('edge cases', () => {
     it('should handle undefined props gracefully', () => {
       const result = resolveVariants(buttonConfig, { size: undefined });
-      // undefined prop should fall back to default
-      expect(result).toBe('px-4 py-2 rounded font-medium text-base px-4 py-2 bg-blue-500 text-white');
+      // undefined prop should fall back to default; the base's `px-4 py-2` is
+      // superseded by the variant's identical `px-4 py-2`
+      expect(result).toBe('rounded font-medium text-base px-4 py-2 bg-blue-500 text-white');
     });
 
     it('should handle config with no variants', () => {
@@ -110,7 +123,8 @@ describe('resolveVariants', () => {
 
     it('should handle calling with no props argument', () => {
       const result = resolveVariants(buttonConfig);
-      expect(result).toBe('px-4 py-2 rounded font-medium text-base px-4 py-2 bg-blue-500 text-white');
+      // the base's `px-4 py-2` is superseded by the variant's identical `px-4 py-2`
+      expect(result).toBe('rounded font-medium text-base px-4 py-2 bg-blue-500 text-white');
     });
 
     it('should handle empty base string', () => {

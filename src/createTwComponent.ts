@@ -40,7 +40,8 @@ import { resolveVariants } from './internal/variantsResolver';
 import type { VariantsConfig } from './internal/variantsResolver';
 import { parseClassName } from './internal/parser';
 import { generateCSSString } from './internal/generator';
-import { injectCSS } from './internal/injector';
+import { injectLayeredCSS } from './internal/injector';
+import { mergeClassNames } from './internal/merger';
 
 // Side-effect: ensure all utility builders are registered before CSS generation
 import './internal/init';
@@ -151,7 +152,7 @@ function injectClassToken(token: string): void {
   if (!parsed.utility) return;
   const css = generateCSSString(parsed, token);
   if (css) {
-    injectCSS(css);
+    injectLayeredCSS(css, parsed.variants.length > 0 ? 'variants' : 'utilities');
   }
 }
 
@@ -274,11 +275,11 @@ export function createTwComponent<
         injectClassString(userClassName as string);
       }
 
-      // Merge: resolved variant classes + user className
-      const finalClassName = [resolvedClassName, userClassName as string | undefined]
-        .filter(Boolean)
-        .join(' ')
-        .trim() || undefined;
+      // Merge: resolved variant classes + user className, resolving any
+      // conflicting utilities so the user's override reliably wins instead of
+      // depending on CSS insertion order.
+      const finalClassName =
+        mergeClassNames(resolvedClassName, userClassName as string | undefined) || undefined;
 
       // Render the element
       return React.createElement(Tag as string, {

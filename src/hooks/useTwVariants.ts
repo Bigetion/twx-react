@@ -30,7 +30,7 @@ import { useMemo } from 'react';
 import { resolveVariants, type VariantsConfig } from '../internal/variantsResolver';
 import { parseClassName } from '../internal/parser';
 import { generateCSSString } from '../internal/generator';
-import { injectCSS } from '../internal/injector';
+import { injectLayeredCSS } from '../internal/injector';
 import type { TwComponentConfig } from '../createTwComponent';
 
 // Side-effect: ensure all utility builders are registered
@@ -91,7 +91,7 @@ export function useTwVariants(
           if (!parsed.utility) continue;
           const css = generateCSSString(parsed, token);
           if (css) {
-            injectCSS(css);
+            injectLayeredCSS(css, parsed.variants.length > 0 ? 'variants' : 'utilities');
           }
         }
       }

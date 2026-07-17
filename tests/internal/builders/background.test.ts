@@ -366,6 +366,7 @@ describe('Background Utilities Builder (Task 3.9)', () => {
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
         '--tw-gradient-from': 'transparent',
+        '--tw-gradient-to': 'transparent',
         '--tw-gradient-stops': 'var(--tw-gradient-from), var(--tw-gradient-to)',
       });
     });
@@ -376,6 +377,7 @@ describe('Background Utilities Builder (Task 3.9)', () => {
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
         '--tw-gradient-from': 'currentColor',
+        '--tw-gradient-to': 'transparent',
         '--tw-gradient-stops': 'var(--tw-gradient-from), var(--tw-gradient-to)',
       });
     });
@@ -386,6 +388,7 @@ describe('Background Utilities Builder (Task 3.9)', () => {
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
         '--tw-gradient-from': '#000000',
+        '--tw-gradient-to': 'transparent',
         '--tw-gradient-stops': 'var(--tw-gradient-from), var(--tw-gradient-to)',
       });
     });
@@ -396,6 +399,7 @@ describe('Background Utilities Builder (Task 3.9)', () => {
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
         '--tw-gradient-from': '#ffffff',
+        '--tw-gradient-to': 'transparent',
         '--tw-gradient-stops': 'var(--tw-gradient-from), var(--tw-gradient-to)',
       });
     });
@@ -406,6 +410,7 @@ describe('Background Utilities Builder (Task 3.9)', () => {
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
         '--tw-gradient-from': 'inherit',
+        '--tw-gradient-to': 'transparent',
         '--tw-gradient-stops': 'var(--tw-gradient-from), var(--tw-gradient-to)',
       });
     });
@@ -416,6 +421,7 @@ describe('Background Utilities Builder (Task 3.9)', () => {
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
         '--tw-gradient-from': '#ff0000',
+        '--tw-gradient-to': 'transparent',
         '--tw-gradient-stops': 'var(--tw-gradient-from), var(--tw-gradient-to)',
       });
     });

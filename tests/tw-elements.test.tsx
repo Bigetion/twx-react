@@ -241,10 +241,16 @@ describe('tw.elements', () => {
     });
 
     it('should handle very long className strings', () => {
+      // Note: `focus:ring-2` and `focus:ring-blue-300` both resolve to a
+      // `box-shadow` under the `focus` variant, so they conflict — the
+      // later class (`focus:ring-blue-300`) wins and `focus:ring-2` is
+      // deduplicated away by the class-conflict resolver.
       const longClassName = 'flex items-center justify-center gap-4 p-8 m-4 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300';
+      const expectedClassName = 'flex items-center justify-center gap-4 p-8 m-4 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 focus:ring-blue-300';
       render(<tw.div data-testid="long-class" className={longClassName} />);
       const element = screen.getByTestId('long-class');
-      expect(element).toHaveClass(longClassName);
+      expect(element).toHaveClass(expectedClassName);
+      expect(element).not.toHaveClass('focus:ring-2');
     });
 
     it('should handle dynamic className', () => {

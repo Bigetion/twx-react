@@ -8,7 +8,7 @@
  * @packageDocumentation
  */
 
-import { isSSR } from './internal/injector';
+import { isSSR, LAYER_ORDER_STATEMENT } from './internal/injector';
 
 const PREFLIGHT_ID = 'twx-react-preflight';
 let preflightInjected = false;
@@ -53,7 +53,9 @@ export function injectPreflight(): void {
   const style = document.createElement('style');
   style.id = PREFLIGHT_ID;
   style.setAttribute('data-twx-react-preflight', '');
-  style.textContent = PREFLIGHT_CSS;
+  // Wrapped in its own (lowest-priority) cascade layer so utility/variant
+  // classes reliably override the reset, regardless of DOM tag order.
+  style.textContent = `${LAYER_ORDER_STATEMENT}\n@layer twx-preflight {\n${PREFLIGHT_CSS}\n}`;
 
   // Insert BEFORE the utility styles so utilities can override preflight
   const utilityStyle = document.getElementById('twx-react-styles');

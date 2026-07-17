@@ -100,10 +100,13 @@ describe('useTwSlots – 13.1 dynamic slots resolution', () => {
 
     expect(classNames[0]).toContain('bg-white rounded-xl');
     expect(classNames[0]).toContain('shadow-lg hover:shadow-xl');
-    expect(classNames[1]).toContain('px-6 py-4 border-b');
+    // header/body base `px-6 py-4` targets the same properties as the `sm`
+    // padding variant's `px-4 py-3`, so the variant's padding wins.
+    expect(classNames[1]).toContain('border-b');
     expect(classNames[1]).toContain('px-4 py-3');
-    expect(classNames[2]).toContain('px-6 py-4');
+    expect(classNames[1]).not.toContain('px-6 py-4');
     expect(classNames[2]).toContain('px-4 py-3');
+    expect(classNames[2]).not.toContain('px-6 py-4');
   });
 
   it('uses default variants when props are not provided', () => {
@@ -186,8 +189,10 @@ describe('useTwSlots – 13.1 dynamic slots resolution', () => {
 
     expect(classNames[0]).toContain('rounded-xl');
     expect(classNames[0]).toContain('border'); // default variant
-    expect(classNames[1]).toContain('p-4');
+    // base body `p-4` targets the same property as the overridden `sm` size's
+    // `p-2`, so only the override survives.
     expect(classNames[1]).toContain('p-2'); // overridden size
+    expect(classNames[1]).not.toContain('p-4');
   });
 
   it('handles compound variants correctly', () => {

@@ -29,8 +29,8 @@
 import React, { forwardRef, memo } from 'react';
 import { parseClassName } from './internal/parser';
 import { generateCSSString } from './internal/generator';
-import { injectCSS } from './internal/injector';
-import { expandClassName } from './internal/expander';
+import { injectLayeredCSS } from './internal/injector';
+import { mergeClassNames } from './internal/merger';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Type Definitions
@@ -59,22 +59,22 @@ export type TwElements = {
 const twFunction = (classString: string): string => {
   if (!classString) return '';
 
-  // Step 1: Expand grouping syntax
-  const expanded = expandClassName(classString);
+  // Step 1: Resolve conflicting utilities (also expands grouping syntax)
+  const merged = mergeClassNames(classString);
 
   // Step 2: Process each token
-  const tokens = expanded.split(/\s+/).filter(Boolean);
+  const tokens = merged.split(/\s+/).filter(Boolean);
 
   for (const token of tokens) {
     const parsed = parseClassName(token);
     if (!parsed.utility) continue;
     const css = generateCSSString(parsed, token);
     if (css) {
-      injectCSS(css);
+      injectLayeredCSS(css, parsed.variants.length > 0 ? 'variants' : 'utilities');
     }
   }
 
-  return expanded;
+  return merged;
 };
 
 /**

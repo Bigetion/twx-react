@@ -332,31 +332,31 @@ describe('Spacing Utilities Builder (Task 3.2)', () => {
     it('should generate space-x-4 → margin-inline-start: 1rem', () => {
       const parsed: ParsedClass = { utility: 'space-x', value: '4', variants: [], modifiers: [] };
       const rule = generateCSS(parsed, 'space-x-4');
-      expect(rule!.properties).toEqual({ 'margin-inline-start': '1rem' });
+      expect(rule!.properties).toEqual({ 'margin-inline-start': 'calc(1rem * calc(1 - 2 * var(--tw-space-x-reverse, 0)))' });
     });
 
     it('should generate space-y-2 → margin-top: 0.5rem', () => {
       const parsed: ParsedClass = { utility: 'space-y', value: '2', variants: [], modifiers: [] };
       const rule = generateCSS(parsed, 'space-y-2');
-      expect(rule!.properties).toEqual({ 'margin-top': '0.5rem' });
+      expect(rule!.properties).toEqual({ 'margin-top': 'calc(0.5rem * calc(1 - 2 * var(--tw-space-y-reverse, 0)))' });
     });
 
     it('should generate negative -space-x-4 → margin-inline-start: -1rem', () => {
       const parsed: ParsedClass = { utility: 'space-x', value: '4', variants: [], modifiers: ['negative'] };
       const rule = generateCSS(parsed, '-space-x-4');
-      expect(rule!.properties).toEqual({ 'margin-inline-start': '-1rem' });
+      expect(rule!.properties).toEqual({ 'margin-inline-start': 'calc(-1rem * calc(1 - 2 * var(--tw-space-x-reverse, 0)))' });
     });
 
     it('should generate negative -space-y-2 → margin-top: -0.5rem', () => {
       const parsed: ParsedClass = { utility: 'space-y', value: '2', variants: [], modifiers: ['negative'] };
       const rule = generateCSS(parsed, '-space-y-2');
-      expect(rule!.properties).toEqual({ 'margin-top': '-0.5rem' });
+      expect(rule!.properties).toEqual({ 'margin-top': 'calc(-0.5rem * calc(1 - 2 * var(--tw-space-y-reverse, 0)))' });
     });
 
     it('should generate space-x-0 → margin-inline-start: 0px', () => {
       const parsed: ParsedClass = { utility: 'space-x', value: '0', variants: [], modifiers: [] };
       const rule = generateCSS(parsed, 'space-x-0');
-      expect(rule!.properties).toEqual({ 'margin-inline-start': '0px' });
+      expect(rule!.properties).toEqual({ 'margin-inline-start': 'calc(0px * calc(1 - 2 * var(--tw-space-x-reverse, 0)))' });
     });
   });
 

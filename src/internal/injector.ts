@@ -9,6 +9,26 @@
 
 const STYLE_TAG_ID = 'twx-react-styles';
 
+/**
+ * Cascade layer names used to keep utility precedence predictable regardless
+ * of *when* each rule happens to be discovered/injected at runtime.
+ *
+ * Without this, two rules with equal selector specificity (e.g. a plain
+ * `.bg-red-500` and a `.hover\\:bg-blue-500:hover`) would win or lose purely
+ * based on which one was inserted into the stylesheet first — which depends
+ * on render order across the whole app, not on source order in JSX. Cascade
+ * layers fix this: layers declared later in `LAYER_ORDER_STATEMENT` always
+ * beat earlier ones, no matter the order individual rules are appended.
+ */
+export type TwxCSSLayer = 'preflight' | 'utilities' | 'variants';
+
+/**
+ * The single source of truth for the cascade layer order. Exported so
+ * `preflight.ts` can declare the exact same order before its own layer block,
+ * regardless of which `<style>` tag ends up first in the DOM.
+ */
+export const LAYER_ORDER_STATEMENT = '@layer twx-preflight, twx-utilities, twx-variants;';
+
 // ---------------------------------------------------------------------------
 // SSR collector
 // An ordered list of unique CSS rules accumulated when running on the server.
@@ -107,6 +127,31 @@ export function injectCSSRules(rules: string[]): void {
   for (const rule of rules) {
     injectCSS(rule);
   }
+}
+
+/**
+ * Inject a CSS rule into a specific cascade layer (`@layer twx-utilities` or
+ * `@layer twx-variants`), guaranteeing correct precedence between plain
+ * utilities and variant/pseudo-class rules regardless of insertion order.
+ *
+ * The layer order is declared once (lazily, the first time this is called)
+ * via `LAYER_ORDER_STATEMENT` and is a no-op on subsequent calls thanks to
+ * the existing dedup mechanism.
+ *
+ * @param cssRule - The raw CSS rule string (as produced by `generateCSSString`)
+ * @param layer - Which cascade layer the rule belongs to (default: `'utilities'`)
+ */
+export function injectLayeredCSS(
+  cssRule: string,
+  layer: Exclude<TwxCSSLayer, 'preflight'> = 'utilities'
+): void {
+  if (!cssRule) return;
+
+  if (!isInjected(LAYER_ORDER_STATEMENT)) {
+    injectCSS(LAYER_ORDER_STATEMENT);
+  }
+
+  injectCSS(`@layer twx-${layer} {\n${cssRule}\n}`);
 }
 
 // ---------------------------------------------------------------------------

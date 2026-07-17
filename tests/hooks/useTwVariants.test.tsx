@@ -61,9 +61,12 @@ describe('useTwVariants – 12.1 dynamic variant resolution', () => {
     const html = renderToStaticMarkup(<TestComponent color="primary" size="lg" />);
     const className = getClassName(html);
 
-    expect(className).toContain('px-4 py-2 rounded');
+    // base's `px-4 py-2` is superseded by the `lg` variant's `px-6 py-3`
+    // (same CSS properties), so only the variant's padding survives.
+    expect(className).toContain('rounded');
     expect(className).toContain('bg-blue-600 text-white');
     expect(className).toContain('text-lg px-6 py-3');
+    expect(className).not.toContain('px-4 py-2');
   });
 
   it('uses default variants when props are not provided', () => {

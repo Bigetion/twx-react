@@ -8,6 +8,8 @@
  * @internal
  */
 
+import { mergeClassNames } from './merger';
+
 /**
  * A compound variant applies additional classes when multiple variant conditions are met simultaneously.
  * All non-className keys are variant conditions that must match.
@@ -151,6 +153,8 @@ export function resolveVariants(
     }
   }
 
-  // 4. Return merged className string
-  return classes.filter(Boolean).join(' ');
+  // 4. Return merged className string, resolving any conflicting utilities
+  // (e.g. a compound variant's "bg-red-500" overriding a variant's "bg-blue-500")
+  // so the winner doesn't depend on unpredictable CSS insertion order.
+  return mergeClassNames(...classes);
 }

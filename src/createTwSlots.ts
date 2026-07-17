@@ -36,7 +36,8 @@
 
 import { parseClassName } from './internal/parser';
 import { generateCSSString } from './internal/generator';
-import { injectCSS } from './internal/injector';
+import { injectLayeredCSS } from './internal/injector';
+import { mergeClassNames } from './internal/merger';
 
 // Side-effect: ensure all utility builders are registered
 import './internal/init';
@@ -182,13 +183,12 @@ export function createTwSlots<
       }
     }
 
-    // Join each slot's classes into a single trimmed string and inject CSS
+    // Merge each slot's classes into a single trimmed string (resolving any
+    // conflicting utilities so a later variant/compound-variant class reliably
+    // overrides an earlier one) and inject CSS.
     const result: Record<string, string> = {};
     for (const slotName of Object.keys(slots)) {
-      const classString = slotClasses[slotName]
-        .filter(Boolean)
-        .join(' ')
-        .trim();
+      const classString = mergeClassNames(...slotClasses[slotName]).trim();
       result[slotName] = classString;
 
       // Inject CSS for each token in the resolved slot class string
@@ -199,7 +199,7 @@ export function createTwSlots<
           if (!parsed.utility) continue;
           const css = generateCSSString(parsed, token);
           if (css) {
-            injectCSS(css);
+            injectLayeredCSS(css, parsed.variants.length > 0 ? 'variants' : 'utilities');
           }
         }
       }

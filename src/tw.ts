@@ -35,8 +35,8 @@
 
 import { parseClassName } from './internal/parser';
 import { generateCSSString } from './internal/generator';
-import { injectCSS } from './internal/injector';
-import { expandClassName } from './internal/expander';
+import { injectLayeredCSS } from './internal/injector';
+import { mergeClassNames } from './internal/merger';
 import { createTwElementsProxy, type TwElements } from './createTwElements';
 
 // Side-effect: ensure all utility builders are registered
@@ -51,28 +51,34 @@ import './internal/init';
  * - Important grouping: !(bg-red-500 text-white)
  * - Negative grouping: -(mt-4 ml-2)
  *
+ * Accepts multiple class strings (falsy values are ignored), resolving any
+ * conflicting utilities so the LAST occurrence wins — regardless of CSS
+ * insertion order:
+ *
+ * ```tsx
+ * tw('px-4 bg-blue-500', isActive && 'bg-red-500') // → "px-4 bg-red-500"
+ * ```
+ *
  * @internal
  */
-function twFunction(classString: string): string {
-  if (!classString) return '';
+function twFunction(...classStrings: Array<string | undefined | null | false>): string {
+  const merged = mergeClassNames(...classStrings);
+  if (!merged) return '';
 
-  // Step 1: Expand grouping syntax
-  const expanded = expandClassName(classString);
-
-  // Step 2: Process each token
-  const tokens = expanded.split(/\s+/).filter(Boolean);
+  // Process each token
+  const tokens = merged.split(/\s+/).filter(Boolean);
 
   for (const token of tokens) {
     const parsed = parseClassName(token);
     if (!parsed.utility) continue;
     const css = generateCSSString(parsed, token);
     if (css) {
-      injectCSS(css);
+      injectLayeredCSS(css, parsed.variants.length > 0 ? 'variants' : 'utilities');
     }
   }
 
-  // Return the expanded string (so the DOM has individual classes)
-  return expanded;
+  // Return the merged/expanded string (so the DOM has individual classes)
+  return merged;
 }
 
 /**
