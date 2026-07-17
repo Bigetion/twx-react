@@ -16,7 +16,7 @@ const banner = `/**
 const external = ['react', 'react-dom', 'react/jsx-runtime'];
 
 const treeshake = {
-  moduleSideEffects: false,
+  moduleSideEffects: true,
   propertyReadSideEffects: false,
   annotations: true,
 };
