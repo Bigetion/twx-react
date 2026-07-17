@@ -67,6 +67,17 @@ function Form() {
 }
 ```
 
+If you need the same class-conflict resolution logic without injecting CSS, you can use `twMerge` directly:
+
+```tsx
+import { twMerge } from 'twx-react';
+
+const className = twMerge('px-4 py-2 bg-blue-500', 'px-6 py-3 bg-red-500');
+// → "bg-red-500 px-6 py-3"
+```
+
+`twMerge` resolves conflicting Tailwind utilities by comparing the CSS properties they generate, so later overrides win deterministically instead of depending on render order.
+
 ### Option 3: createTwComponent (Advanced Patterns)
 
 For components with variants, use `createTwComponent`:
@@ -112,6 +123,7 @@ const Button = createTwComponent('button', {
 - **Zero build step** — Runtime CSS generation and injection, no PostCSS or config files
 - **tw.element components** — Clean HTML wrappers with automatic CSS processing
 - **Class grouping syntax** — `hover:(bg-blue-600 scale-105)` expands variants automatically
+- **Deterministic class merging** — Conflicting utilities are resolved by generated CSS properties, and `twMerge` is exported for direct use
 - **Full TypeScript inference** — Variant props are type-safe with autocomplete
 - **Polymorphic `as` prop** — Render any component as a different element
 - **Ref forwarding** — All components forward refs correctly

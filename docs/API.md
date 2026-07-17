@@ -6,6 +6,7 @@
 
 ## Table of Contents
 
+- [tw / twMerge](#tw--twmerge)
 - [createTwComponent](#createtwcomponent)
 - [createTwSlots](#createtwslots)
 - [createTwCompound](#createtwcompound)
@@ -17,6 +18,32 @@
 - [Exported Types](#exported-types)
 - [Package Metadata](#package-metadata)
 - [Internal Modules (Not Exported)](#internal-modules-not-exported)
+
+---
+
+## tw / twMerge
+
+`tw` is the public runtime helper used by `tw.element` and advanced class processing. `twMerge` is the pure class-merging helper exported from the package for callers that only want deterministic conflict resolution without CSS injection.
+
+### Exports
+
+```ts
+import { tw, twMerge } from 'twx-react';
+```
+
+### Behavior
+
+- Expands grouped syntax like `hover:(bg-blue-600 scale-105)`
+- Merges conflicting utilities by comparing the CSS properties they generate
+- Keeps the last conflicting utility for the same property set and variant chain
+- Leaves unknown custom classes intact, only deduplicating exact duplicates
+
+### Example
+
+```ts
+twMerge('px-4 py-2 bg-blue-500', 'px-6 py-3 bg-red-500');
+// → "bg-red-500 px-6 py-3"
+```
 
 ---
 
