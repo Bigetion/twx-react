@@ -19,6 +19,8 @@ export interface CSSRule {
   mediaQuery?: string;
   /** Optional container query wrapper (e.g., "@container (min-width: 768px)") */
   containerQuery?: string;
+  /** Optional supports query wrapper (e.g., "@supports (display: grid)") */
+  supportsQuery?: string;
 }
 
 // ─── Utility Generator Function Type ──────────────────────────────────────────
@@ -56,6 +58,9 @@ export const CONTAINER_BREAKPOINTS: Record<string, string> = {
   '@lg': '1024px',
   '@xl': '1280px',
   '@2xl': '1536px',
+  '@3xl': '1792px',
+  '@4xl': '2048px',
+  '@5xl': '2304px',
 };
 
 // ─── Pseudo-Class / Pseudo-Element Mappings ──────────────────────────────────
@@ -206,6 +211,17 @@ export function buildContainerQuery(minWidth: string): string {
   return `@container (min-width: ${minWidth})`;
 }
 
+/**
+ * Wrap a CSS rule string inside a supports query block.
+ */
+export function buildSupportsQuery(condition: string): string {
+  const normalized = condition.trim();
+  if (normalized.startsWith('(')) {
+    return `@supports ${normalized}`;
+  }
+  return `@supports (${normalized})`;
+}
+
 // ─── Pseudo-Class Selector Builder ───────────────────────────────────────────
 
 /**
@@ -268,6 +284,50 @@ export function buildDarkSelector(baseSelector: string): string {
   return `.dark ${baseSelector}`;
 }
 
+function buildDirectionSelector(baseSelector: string, dir: 'rtl' | 'ltr'): string {
+  return `[dir="${dir}"] ${baseSelector}`;
+}
+
+function buildAriaSelector(baseSelector: string, raw: string): string {
+  if (raw.startsWith('[') && raw.endsWith(']')) {
+    const inner = raw.slice(1, -1).trim();
+    if (!inner) return baseSelector;
+    const eqIndex = inner.indexOf('=');
+    if (eqIndex > 0) {
+      const name = inner.slice(0, eqIndex).trim();
+      const value = inner.slice(eqIndex + 1).trim();
+      return `${baseSelector}[aria-${name}="${value}"]`;
+    }
+    return `${baseSelector}[aria-${inner}]`;
+  }
+
+  // Tailwind's aria-checked maps to aria-checked="true"
+  return `${baseSelector}[aria-${raw}="true"]`;
+}
+
+function buildDataSelector(baseSelector: string, raw: string): string {
+  if (raw.startsWith('[') && raw.endsWith(']')) {
+    const inner = raw.slice(1, -1).trim();
+    if (!inner) return baseSelector;
+    const eqIndex = inner.indexOf('=');
+    if (eqIndex > 0) {
+      const name = inner.slice(0, eqIndex).trim();
+      const value = inner.slice(eqIndex + 1).trim();
+      return `${baseSelector}[data-${name}="${value}"]`;
+    }
+    return `${baseSelector}[data-${inner}]`;
+  }
+
+  return `${baseSelector}[data-${raw}]`;
+}
+
+function extractBracketValue(raw: string): string {
+  if (raw.startsWith('[') && raw.endsWith(']')) {
+    return raw.slice(1, -1).trim();
+  }
+  return raw.trim();
+}
+
 // ─── Variant Resolution ──────────────────────────────────────────────────────
 
 /**
@@ -281,22 +341,89 @@ export function buildDarkSelector(baseSelector: string): string {
 export function resolveVariants(
   className: string,
   variants: string[]
-): { selector: string; mediaQuery?: string; containerQuery?: string } {
+): { selector: string; mediaQuery?: string; containerQuery?: string; supportsQuery?: string } {
   const escapedClass = escapeClassName(className);
   let selector = `.${escapedClass}`;
-  let mediaQuery: string | undefined;
-  let containerQuery: string | undefined;
+  const mediaConditions: string[] = [];
+  const containerConditions: string[] = [];
+  const supportsConditions: string[] = [];
 
   for (const variant of variants) {
     // Check responsive breakpoint
     if (variant in RESPONSIVE_BREAKPOINTS) {
-      mediaQuery = buildMediaQuery(RESPONSIVE_BREAKPOINTS[variant]);
+      mediaConditions.push(`(min-width: ${RESPONSIVE_BREAKPOINTS[variant]})`);
       continue;
     }
 
     // Check container query breakpoint
     if (variant in CONTAINER_BREAKPOINTS) {
-      containerQuery = buildContainerQuery(CONTAINER_BREAKPOINTS[variant]);
+      containerConditions.push(`(min-width: ${CONTAINER_BREAKPOINTS[variant]})`);
+      continue;
+    }
+
+    if (variant === 'print') {
+      mediaConditions.push('print');
+      continue;
+    }
+
+    if (variant === 'motion-reduce') {
+      mediaConditions.push('(prefers-reduced-motion: reduce)');
+      continue;
+    }
+
+    if (variant === 'motion-safe') {
+      mediaConditions.push('(prefers-reduced-motion: no-preference)');
+      continue;
+    }
+
+    if (variant === 'portrait') {
+      mediaConditions.push('(orientation: portrait)');
+      continue;
+    }
+
+    if (variant === 'landscape') {
+      mediaConditions.push('(orientation: landscape)');
+      continue;
+    }
+
+    if (variant === 'contrast-more') {
+      mediaConditions.push('(prefers-contrast: more)');
+      continue;
+    }
+
+    if (variant === 'contrast-less') {
+      mediaConditions.push('(prefers-contrast: less)');
+      continue;
+    }
+
+    if (variant === 'rtl' || variant === 'ltr') {
+      selector = buildDirectionSelector(selector, variant);
+      continue;
+    }
+
+    if (variant.startsWith('aria-')) {
+      selector = buildAriaSelector(selector, variant.slice(5));
+      continue;
+    }
+
+    if (variant.startsWith('data-')) {
+      selector = buildDataSelector(selector, variant.slice(5));
+      continue;
+    }
+
+    if (variant.startsWith('supports-')) {
+      const condition = extractBracketValue(variant.slice(9));
+      if (condition) {
+        supportsConditions.push(condition);
+      }
+      continue;
+    }
+
+    if (variant.startsWith('has-')) {
+      const condition = extractBracketValue(variant.slice(4));
+      if (condition) {
+        selector = `${selector}:has(${condition})`;
+      }
       continue;
     }
 
@@ -344,7 +471,19 @@ export function resolveVariants(
     selector = buildPseudoSelector(selector, `:${variant}`);
   }
 
-  return { selector, mediaQuery, containerQuery };
+  const mediaQuery = mediaConditions.length > 0
+    ? `@media ${mediaConditions.join(' and ')}`
+    : undefined;
+
+  const containerQuery = containerConditions.length > 0
+    ? `@container ${containerConditions.join(' and ')}`
+    : undefined;
+
+  const supportsQuery = supportsConditions.length > 0
+    ? buildSupportsQuery(supportsConditions.join(' and '))
+    : undefined;
+
+  return { selector, mediaQuery, containerQuery, supportsQuery };
 }
 
 // ─── Main Generate Function ──────────────────────────────────────────────────
@@ -428,8 +567,8 @@ export function generateCSS(parsedClass: ParsedClass, originalClassName?: string
   // Resolve the class name for the selector
   const className = originalClassName || parsedClass.utility + (parsedClass.value ? `-${parsedClass.value}` : '');
 
-  // Resolve variants to get selector, media query, and container query
-  const { selector: baseSelector, mediaQuery, containerQuery } = resolveVariants(
+  // Resolve variants to get selector, media/container/supports queries
+  const { selector: baseSelector, mediaQuery, containerQuery, supportsQuery } = resolveVariants(
     className,
     parsedClass.variants
   );
@@ -438,6 +577,7 @@ export function generateCSS(parsedClass: ParsedClass, originalClassName?: string
   const rule: CSSRule = { selector, properties };
   if (mediaQuery) rule.mediaQuery = mediaQuery;
   if (containerQuery) rule.containerQuery = containerQuery;
+  if (supportsQuery) rule.supportsQuery = supportsQuery;
 
   return rule;
 }
@@ -460,6 +600,10 @@ export function stringifyRule(rule: CSSRule): string {
 
   // Wrap in container query if present
   let css = ruleBlock;
+  if (rule.supportsQuery) {
+    css = `${rule.supportsQuery} {\n  ${ruleBlock.replace(/\n/g, '\n  ')}\n}`;
+  }
+
   if (rule.containerQuery) {
     css = `${rule.containerQuery} {\n  ${ruleBlock.replace(/\n/g, '\n  ')}\n}`;
   }

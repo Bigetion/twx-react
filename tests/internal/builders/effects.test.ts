@@ -301,4 +301,22 @@ describe('Effects Utilities Builder', () => {
       });
     });
   });
+
+  describe('mask-image utilities', () => {
+    it('generates mask-image-none', () => {
+      const parsed = parseClassName('mask-image-none');
+      const rule = generateCSS(parsed, 'mask-image-none');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({ 'mask-image': 'none' });
+    });
+
+    it('generates arbitrary mask-image values', () => {
+      const parsed = parseClassName('mask-image-[linear-gradient(to_bottom,black,transparent)]');
+      const rule = generateCSS(parsed, 'mask-image-[linear-gradient(to_bottom,black,transparent)]');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({
+        'mask-image': 'linear-gradient(to bottom,black,transparent)',
+      });
+    });
+  });
 });

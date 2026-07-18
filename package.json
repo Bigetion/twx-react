@@ -23,6 +23,7 @@
     "dev": "rollup -c rollup.config.js --watch",
     "build": "rollup -c rollup.config.js",
     "test": "jest",
+    "test:compat": "jest tests/internal/compatibility-corpus.test.ts",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "type-check": "tsc --noEmit",

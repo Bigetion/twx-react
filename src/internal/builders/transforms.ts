@@ -39,6 +39,15 @@ const ROTATE_VALUES: Record<string, string> = {
   '180': '180deg',
 };
 
+/** Maps perspective value -> CSS value */
+const PERSPECTIVE_VALUES: Record<string, string> = {
+  '100': '100px',
+  '200': '200px',
+  '500': '500px',
+  '1000': '1000px',
+  '2000': '2000px',
+};
+
 // ─── Translate Scale (spacing scale) ──────────────────────────────────────────
 
 /** Maps translate value → CSS value (spacing scale + fractions + special) */
@@ -193,6 +202,36 @@ const rotateGenerator: UtilityGenerator = (parsed) => {
   return { transform: `rotate(${applyNegative(degrees, parsed)})` };
 };
 
+/** rotate-x-* → transform: rotateX(Ndeg), supports negative */
+const rotateXGenerator: UtilityGenerator = (parsed) => {
+  if (!parsed.value) return null;
+
+  if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
+    const rawValue = parsed.value.slice(1, -1);
+    return { transform: `rotateX(${applyNegative(rawValue, parsed)})` };
+  }
+
+  const degrees = ROTATE_VALUES[parsed.value];
+  if (!degrees) return null;
+
+  return { transform: `rotateX(${applyNegative(degrees, parsed)})` };
+};
+
+/** rotate-y-* → transform: rotateY(Ndeg), supports negative */
+const rotateYGenerator: UtilityGenerator = (parsed) => {
+  if (!parsed.value) return null;
+
+  if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
+    const rawValue = parsed.value.slice(1, -1);
+    return { transform: `rotateY(${applyNegative(rawValue, parsed)})` };
+  }
+
+  const degrees = ROTATE_VALUES[parsed.value];
+  if (!degrees) return null;
+
+  return { transform: `rotateY(${applyNegative(degrees, parsed)})` };
+};
+
 // ─── Translate Generators ─────────────────────────────────────────────────────
 
 /** translate-x-* → transform: translateX(value), supports negative */
@@ -328,6 +367,29 @@ const originBottomGenerator: UtilityGenerator = (parsed) => {
   return null;
 };
 
+/** perspective-* → perspective: value */
+const perspectiveGenerator: UtilityGenerator = (parsed) => {
+  if (!parsed.value) return null;
+
+  if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
+    return { perspective: parsed.value.slice(1, -1) };
+  }
+
+  const value = PERSPECTIVE_VALUES[parsed.value];
+  if (!value) return null;
+
+  return { perspective: value };
+};
+
+/** backface-* → backface-visibility: value */
+const backfaceGenerator: UtilityGenerator = (parsed) => {
+  if (!parsed.value) return null;
+  if (parsed.value === 'hidden' || parsed.value === 'visible') {
+    return { 'backface-visibility': parsed.value };
+  }
+  return null;
+};
+
 // ─── Registration ─────────────────────────────────────────────────────────────
 
 /**
@@ -343,6 +405,8 @@ export function registerTransformUtilities(): void {
 
     // Rotate
     ['rotate', rotateGenerator],
+    ['rotate-x', rotateXGenerator],
+    ['rotate-y', rotateYGenerator],
 
     // Translate
     ['translate-x', translateXGenerator],
@@ -356,6 +420,10 @@ export function registerTransformUtilities(): void {
     ['origin', originGenerator],
     ['origin-top', originTopGenerator],
     ['origin-bottom', originBottomGenerator],
+
+    // 3D transform helpers
+    ['perspective', perspectiveGenerator],
+    ['backface', backfaceGenerator],
   ]);
 }
 
@@ -363,6 +431,7 @@ export function registerTransformUtilities(): void {
 export {
   SCALE_VALUES,
   ROTATE_VALUES,
+  PERSPECTIVE_VALUES,
   TRANSLATE_VALUES,
   SKEW_VALUES,
   ORIGIN_VALUES,

@@ -376,6 +376,66 @@ export function registerTypographyUtilities(): void {
         return null;
     }
   });
+
+  // ── List Style Utilities ────────────────────────────────────────────────
+  registerUtility('list', (parsed: ParsedClass): Record<string, string> | null => {
+    if (!parsed.value) return null;
+
+    if (parsed.value === 'none' || parsed.value === 'disc' || parsed.value === 'decimal') {
+      return { 'list-style-type': parsed.value };
+    }
+
+    if (parsed.value === 'inside' || parsed.value === 'outside') {
+      return { 'list-style-position': parsed.value };
+    }
+
+    return null;
+  });
+
+  // ── Underline Offset Utilities ──────────────────────────────────────────
+  registerUtility('underline-offset', (parsed: ParsedClass): Record<string, string> | null => {
+    if (!parsed.value) return null;
+
+    if (parsed.value === 'auto') return { 'text-underline-offset': 'auto' };
+
+    const offsets: Record<string, string> = {
+      '0': '0px',
+      '1': '1px',
+      '2': '2px',
+      '4': '4px',
+      '8': '8px',
+    };
+
+    if (parsed.value in offsets) {
+      return { 'text-underline-offset': offsets[parsed.value] };
+    }
+
+    if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
+      return { 'text-underline-offset': parsed.value.slice(1, -1) };
+    }
+
+    return null;
+  });
+
+  // ── Hyphens Utilities ───────────────────────────────────────────────────
+  registerUtility('hyphens', (parsed: ParsedClass): Record<string, string> | null => {
+    if (!parsed.value) return null;
+
+    if (parsed.value === 'none' || parsed.value === 'manual' || parsed.value === 'auto') {
+      return { hyphens: parsed.value };
+    }
+
+    return null;
+  });
+
+  // ── Writing Mode Utilities ──────────────────────────────────────────────
+  registerUtilities([
+    ['writing-horizontal-tb', () => ({ 'writing-mode': 'horizontal-tb' })],
+    ['writing-vertical-rl', () => ({ 'writing-mode': 'vertical-rl' })],
+    ['writing-vertical-lr', () => ({ 'writing-mode': 'vertical-lr' })],
+    ['writing-sideways-rl', () => ({ 'writing-mode': 'sideways-rl' })],
+    ['writing-sideways-lr', () => ({ 'writing-mode': 'sideways-lr' })],
+  ]);
 }
 
 // Export scales for testing

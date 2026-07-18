@@ -448,6 +448,86 @@ describe('Typography Utilities Builder', () => {
     });
   });
 
+  describe('list style', () => {
+    it('generates list-none', () => {
+      const parsed = parseClassName('list-none');
+      const rule = generateCSS(parsed, 'list-none');
+      expect(rule!.properties).toEqual({ 'list-style-type': 'none' });
+    });
+
+    it('generates list-disc', () => {
+      const parsed = parseClassName('list-disc');
+      const rule = generateCSS(parsed, 'list-disc');
+      expect(rule!.properties).toEqual({ 'list-style-type': 'disc' });
+    });
+
+    it('generates list-decimal', () => {
+      const parsed = parseClassName('list-decimal');
+      const rule = generateCSS(parsed, 'list-decimal');
+      expect(rule!.properties).toEqual({ 'list-style-type': 'decimal' });
+    });
+
+    it('generates list-inside', () => {
+      const parsed = parseClassName('list-inside');
+      const rule = generateCSS(parsed, 'list-inside');
+      expect(rule!.properties).toEqual({ 'list-style-position': 'inside' });
+    });
+
+    it('generates list-outside', () => {
+      const parsed = parseClassName('list-outside');
+      const rule = generateCSS(parsed, 'list-outside');
+      expect(rule!.properties).toEqual({ 'list-style-position': 'outside' });
+    });
+  });
+
+  describe('underline offset', () => {
+    it('generates underline-offset-auto', () => {
+      const parsed = parseClassName('underline-offset-auto');
+      const rule = generateCSS(parsed, 'underline-offset-auto');
+      expect(rule!.properties).toEqual({ 'text-underline-offset': 'auto' });
+    });
+
+    it('generates underline-offset-4', () => {
+      const parsed = parseClassName('underline-offset-4');
+      const rule = generateCSS(parsed, 'underline-offset-4');
+      expect(rule!.properties).toEqual({ 'text-underline-offset': '4px' });
+    });
+  });
+
+  describe('hyphens', () => {
+    it('generates hyphens-none', () => {
+      const parsed = parseClassName('hyphens-none');
+      const rule = generateCSS(parsed, 'hyphens-none');
+      expect(rule!.properties).toEqual({ hyphens: 'none' });
+    });
+
+    it('generates hyphens-manual', () => {
+      const parsed = parseClassName('hyphens-manual');
+      const rule = generateCSS(parsed, 'hyphens-manual');
+      expect(rule!.properties).toEqual({ hyphens: 'manual' });
+    });
+
+    it('generates hyphens-auto', () => {
+      const parsed = parseClassName('hyphens-auto');
+      const rule = generateCSS(parsed, 'hyphens-auto');
+      expect(rule!.properties).toEqual({ hyphens: 'auto' });
+    });
+  });
+
+  describe('writing mode', () => {
+    it('generates writing-horizontal-tb', () => {
+      const parsed = parseClassName('writing-horizontal-tb');
+      const rule = generateCSS(parsed, 'writing-horizontal-tb');
+      expect(rule!.properties).toEqual({ 'writing-mode': 'horizontal-tb' });
+    });
+
+    it('generates writing-vertical-rl', () => {
+      const parsed = parseClassName('writing-vertical-rl');
+      const rule = generateCSS(parsed, 'writing-vertical-rl');
+      expect(rule!.properties).toEqual({ 'writing-mode': 'vertical-rl' });
+    });
+  });
+
   // ─── Unrecognized values return null ──────────────────────────────────────
 
   describe('unrecognized values', () => {

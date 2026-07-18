@@ -148,6 +148,50 @@ describe('Layout Utilities Builder (Task 3.4)', () => {
     });
   });
 
+  describe('Table Utilities', () => {
+    it('should generate table-auto', () => {
+      const parsed: ParsedClass = { utility: 'table', value: 'auto', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'table-auto');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({ 'table-layout': 'auto' });
+    });
+
+    it('should generate table-fixed', () => {
+      const parsed: ParsedClass = { utility: 'table', value: 'fixed', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'table-fixed');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({ 'table-layout': 'fixed' });
+    });
+
+    it('should generate border-collapse', () => {
+      const parsed: ParsedClass = { utility: 'border', value: 'collapse', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'border-collapse');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({ 'border-collapse': 'collapse' });
+    });
+
+    it('should generate border-separate', () => {
+      const parsed: ParsedClass = { utility: 'border', value: 'separate', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'border-separate');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({ 'border-collapse': 'separate' });
+    });
+
+    it('should generate caption-top', () => {
+      const parsed: ParsedClass = { utility: 'caption', value: 'top', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'caption-top');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({ 'caption-side': 'top' });
+    });
+
+    it('should generate caption-bottom', () => {
+      const parsed: ParsedClass = { utility: 'caption', value: 'bottom', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'caption-bottom');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({ 'caption-side': 'bottom' });
+    });
+  });
+
   describe('Inset Utilities', () => {
     it('should generate inset for all 4 sides', () => {
       const parsed: ParsedClass = { utility: 'inset', value: '4', variants: [], modifiers: [] };

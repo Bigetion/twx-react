@@ -13,6 +13,36 @@ export interface ParsedClass {
   arbitrary?: boolean;
 }
 
+function splitTopLevelByColon(input: string): string[] {
+  const parts: string[] = [];
+  let current = '';
+  let squareDepth = 0;
+  let parenDepth = 0;
+  let braceDepth = 0;
+
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+
+    if (ch === '[') squareDepth++;
+    else if (ch === ']' && squareDepth > 0) squareDepth--;
+    else if (ch === '(') parenDepth++;
+    else if (ch === ')' && parenDepth > 0) parenDepth--;
+    else if (ch === '{') braceDepth++;
+    else if (ch === '}' && braceDepth > 0) braceDepth--;
+
+    if (ch === ':' && squareDepth === 0 && parenDepth === 0 && braceDepth === 0) {
+      parts.push(current);
+      current = '';
+      continue;
+    }
+
+    current += ch;
+  }
+
+  parts.push(current);
+  return parts;
+}
+
 /**
  * Parse a Tailwind class string into structured components
  * 
@@ -76,22 +106,16 @@ export function parseClassName(className: string): ParsedClass {
   const variants: string[] = [];
   let workingClass = trimmed;
 
-  // Extract variant prefixes (e.g., "sm:", "md:", "hover:", "@lg:")
-  // These are prefixes that end with ":" before the utility
-  // Examples: "sm:px-4", "md:hover:bg-blue-500", "@lg:flex"
-  while (workingClass.includes(':')) {
-    const colonIndex = workingClass.indexOf(':');
-    const prefix = workingClass.substring(0, colonIndex);
-    
-    // Check if this is a valid variant prefix (not part of an arbitrary value)
-    // Valid prefixes: alphanumeric with optional @ at start
-    if (/^@?[\w-]+$/.test(prefix)) {
-      variants.push(prefix);
-      workingClass = workingClass.substring(colonIndex + 1);
-    } else {
-      // Not a variant prefix, stop extraction
-      break;
+  // Extract variant prefixes by splitting only on top-level colons.
+  // This preserves arbitrary values/variants containing colons, like:
+  // - [text-decoration:underline]
+  // - supports-[display:grid]:grid
+  const variantParts = splitTopLevelByColon(trimmed);
+  if (variantParts.length > 1) {
+    for (let i = 0; i < variantParts.length - 1; i++) {
+      if (variantParts[i]) variants.push(variantParts[i]);
     }
+    workingClass = variantParts[variantParts.length - 1] || '';
   }
 
   // Check for negative values (e.g., "-m-4", "-translate-x-2")

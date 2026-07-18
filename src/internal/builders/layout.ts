@@ -388,6 +388,16 @@ export function registerLayoutUtilities(): void {
     ['collapse', () => ({ visibility: 'collapse' })],
   ]);
 
+  // ── Table Utilities ─────────────────────────────────────────────────────
+  registerUtilities([
+    ['table-auto', () => ({ 'table-layout': 'auto' })],
+    ['table-fixed', () => ({ 'table-layout': 'fixed' })],
+    ['border-collapse', () => ({ 'border-collapse': 'collapse' })],
+    ['border-separate', () => ({ 'border-collapse': 'separate' })],
+    ['caption-top', () => ({ 'caption-side': 'top' })],
+    ['caption-bottom', () => ({ 'caption-side': 'bottom' })],
+  ]);
+
   // ── Overscroll Behavior ────────────────────────────────────────────────
   const OVERSCROLL_VALUES = ['auto', 'contain', 'none'] as const;
   registerUtility('overscroll', (parsed: ParsedClass) => {

@@ -144,6 +144,24 @@ describe('Transform Utilities Builder (Task 3.12)', () => {
       const rule = generateCSS(parsed, 'rotate-99');
       expect(rule).toBeNull();
     });
+
+    it('should generate rotate-x-12 → transform: rotateX(12deg)', () => {
+      const parsed: ParsedClass = { utility: 'rotate-x', value: '12', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'rotate-x-12');
+      expect(rule!.properties).toEqual({ transform: 'rotateX(12deg)' });
+    });
+
+    it('should generate rotate-y-12 → transform: rotateY(12deg)', () => {
+      const parsed: ParsedClass = { utility: 'rotate-y', value: '12', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'rotate-y-12');
+      expect(rule!.properties).toEqual({ transform: 'rotateY(12deg)' });
+    });
+
+    it('should generate -rotate-x-12 → transform: rotateX(-12deg)', () => {
+      const parsed: ParsedClass = { utility: 'rotate-x', value: '12', variants: [], modifiers: ['negative'] };
+      const rule = generateCSS(parsed, '-rotate-x-12');
+      expect(rule!.properties).toEqual({ transform: 'rotateX(-12deg)' });
+    });
   });
 
   describe('Translate Utilities', () => {
@@ -365,6 +383,22 @@ describe('Transform Utilities Builder (Task 3.12)', () => {
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({ transform: 'rotate(12deg)' });
       expect(rule!.selector).toBe('.hover\\:rotate-12:hover');
+    });
+  });
+
+  describe('3D Transform Helpers', () => {
+    it('should generate perspective-1000', () => {
+      const parsed: ParsedClass = { utility: 'perspective', value: '1000', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'perspective-1000');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({ perspective: '1000px' });
+    });
+
+    it('should generate backface-hidden', () => {
+      const parsed: ParsedClass = { utility: 'backface', value: 'hidden', variants: [], modifiers: [] };
+      const rule = generateCSS(parsed, 'backface-hidden');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({ 'backface-visibility': 'hidden' });
     });
   });
 });

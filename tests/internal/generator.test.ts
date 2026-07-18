@@ -22,6 +22,7 @@ import {
   escapeClassName,
   buildMediaQuery,
   buildContainerQuery,
+  buildSupportsQuery,
   buildPseudoSelector,
   buildGroupSelector,
   buildPeerSelector,
@@ -151,6 +152,16 @@ describe('Generator Infrastructure (Task 3.1)', () => {
     });
   });
 
+  describe('Supports Query Builder', () => {
+    it('should build supports query with plain condition', () => {
+      expect(buildSupportsQuery('display: grid')).toBe('@supports (display: grid)');
+    });
+
+    it('should preserve parenthesized condition', () => {
+      expect(buildSupportsQuery('(display: grid)')).toBe('@supports (display: grid)');
+    });
+  });
+
   describe('Pseudo-Class Selector Builder', () => {
     it('should append :hover pseudo-class', () => {
       expect(buildPseudoSelector('.btn', ':hover')).toBe('.btn:hover');
@@ -229,6 +240,9 @@ describe('Generator Infrastructure (Task 3.1)', () => {
       expect(CONTAINER_BREAKPOINTS['@lg']).toBe('1024px');
       expect(CONTAINER_BREAKPOINTS['@xl']).toBe('1280px');
       expect(CONTAINER_BREAKPOINTS['@2xl']).toBe('1536px');
+      expect(CONTAINER_BREAKPOINTS['@3xl']).toBe('1792px');
+      expect(CONTAINER_BREAKPOINTS['@4xl']).toBe('2048px');
+      expect(CONTAINER_BREAKPOINTS['@5xl']).toBe('2304px');
     });
   });
 
@@ -342,6 +356,53 @@ describe('Generator Infrastructure (Task 3.1)', () => {
       const result = resolveVariants('2xl:text-4xl', ['2xl']);
       expect(result.mediaQuery).toBe('@media (min-width: 1536px)');
       expect(result.selector).toBe('.2xl\\:text-4xl');
+    });
+
+    it('should handle 3xl container breakpoint', () => {
+      const result = resolveVariants('@3xl:flex', ['@3xl']);
+      expect(result.containerQuery).toBe('@container (min-width: 1792px)');
+      expect(result.selector).toBe('.\\@3xl\\:flex');
+    });
+
+    it('should resolve print variant', () => {
+      const result = resolveVariants('print:hidden', ['print']);
+      expect(result.mediaQuery).toBe('@media print');
+      expect(result.selector).toBe('.print\\:hidden');
+    });
+
+    it('should resolve motion-reduce variant', () => {
+      const result = resolveVariants('motion-reduce:animate-none', ['motion-reduce']);
+      expect(result.mediaQuery).toBe('@media (prefers-reduced-motion: reduce)');
+    });
+
+    it('should resolve portrait variant', () => {
+      const result = resolveVariants('portrait:hidden', ['portrait']);
+      expect(result.mediaQuery).toBe('@media (orientation: portrait)');
+    });
+
+    it('should resolve rtl variant', () => {
+      const result = resolveVariants('rtl:text-right', ['rtl']);
+      expect(result.selector).toBe('[dir="rtl"] .rtl\\:text-right');
+    });
+
+    it('should resolve aria variant', () => {
+      const result = resolveVariants('aria-checked:bg-blue-500', ['aria-checked']);
+      expect(result.selector).toBe('.aria-checked\\:bg-blue-500[aria-checked="true"]');
+    });
+
+    it('should resolve data variant', () => {
+      const result = resolveVariants('data-open:opacity-100', ['data-open']);
+      expect(result.selector).toBe('.data-open\\:opacity-100[data-open]');
+    });
+
+    it('should resolve supports arbitrary variant', () => {
+      const result = resolveVariants('supports-[display:grid]:grid', ['supports-[display:grid]']);
+      expect(result.supportsQuery).toBe('@supports (display:grid)');
+    });
+
+    it('should resolve has arbitrary variant', () => {
+      const result = resolveVariants('has-[img]:p-4', ['has-[img]']);
+      expect(result.selector).toBe('.has-\\[img\\]\\:p-4:has(img)');
     });
   });
 
@@ -516,6 +577,17 @@ describe('Generator Infrastructure (Task 3.1)', () => {
       expect(css).toContain('@media (min-width: 768px)');
       expect(css).toContain('@container (min-width: 1024px)');
       expect(css).toContain('display: flex;');
+    });
+
+    it('should wrap in supports query', () => {
+      const rule: CSSRule = {
+        selector: '.supports-\\[display\\:grid\\]\\:grid',
+        properties: { display: 'grid' },
+        supportsQuery: '@supports (display: grid)',
+      };
+      const css = stringifyRule(rule);
+      expect(css).toContain('@supports (display: grid)');
+      expect(css).toContain('display: grid;');
     });
 
     it('should produce well-formatted CSS with pseudo-class selector', () => {

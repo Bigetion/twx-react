@@ -5,7 +5,7 @@
  * @internal
  */
 
-import { registerUtilities, type UtilityGenerator } from '../generator';
+import { registerUtility, registerUtilities, type UtilityGenerator } from '../generator';
 
 // ─── Opacity Scale ────────────────────────────────────────────────────────────
 
@@ -240,6 +240,20 @@ export function registerEffectsUtilities(): void {
     ['text-shadow', textShadowGenerator],
     // Shadow color variants (shadow-{family}-{shade}) will be registered by colors builder via dynamic generators
   ]);
+
+  registerUtility('mask-image', (parsed) => {
+    if (!parsed.value) return null;
+
+    if (parsed.value === 'none') {
+      return { 'mask-image': 'none' };
+    }
+
+    if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
+      return { 'mask-image': parsed.value.slice(1, -1).replace(/_/g, ' ') };
+    }
+
+    return null;
+  });
 }
 
 // Export for testing

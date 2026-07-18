@@ -131,7 +131,7 @@ const Button = createTwComponent('button', {
 - **Compound components** — Group related components under one config
 - **Theme system** — Design tokens via React Context with runtime switching
 - **LRU cache** — Automatic caching prevents redundant CSS generation
-- **Tailwind v4** — OKLCH P3 colors, all utility categories
+- **Tailwind v4** — OKLCH P3 colors, broad utility coverage with compatibility corpus tracking
 - **SSR compatible** — Works with Next.js, Remix, Gatsby
 - **Tree-shakeable** — Import only what you use (~8-12KB typical, ~16KB full)
 

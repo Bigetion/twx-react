@@ -2022,6 +2022,52 @@ describe('parseClassName - Pseudo-class Variant Support (Task 2.3)', () => {
   });
 });
 
+describe('parseClassName - Modern Variant Syntax', () => {
+  it('should parse supports arbitrary variant', () => {
+    const result = parseClassName('supports-[display:grid]:grid');
+    expect(result).toEqual({
+      utility: 'grid',
+      value: undefined,
+      variants: ['supports-[display:grid]'],
+      modifiers: [],
+      arbitrary: undefined,
+    });
+  });
+
+  it('should parse data arbitrary variant', () => {
+    const result = parseClassName('data-[state=open]:opacity-100');
+    expect(result).toEqual({
+      utility: 'opacity',
+      value: '100',
+      variants: ['data-[state=open]'],
+      modifiers: [],
+      arbitrary: undefined,
+    });
+  });
+
+  it('should parse has arbitrary variant', () => {
+    const result = parseClassName('has-[img]:p-4');
+    expect(result).toEqual({
+      utility: 'p',
+      value: '4',
+      variants: ['has-[img]'],
+      modifiers: [],
+      arbitrary: undefined,
+    });
+  });
+
+  it('should not split colons inside arbitrary properties', () => {
+    const result = parseClassName('[text-decoration:underline]');
+    expect(result).toEqual({
+      utility: 'text-decoration',
+      value: 'underline',
+      variants: [],
+      modifiers: [],
+      arbitrary: true,
+    });
+  });
+});
+
 describe('parseClassName - Dark Mode and Arbitrary Value Support (Task 2.5)', () => {
   describe('Dark mode variant', () => {
     it('should parse dark: prefix', () => {
