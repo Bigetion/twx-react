@@ -1,6 +1,6 @@
 {
   "name": "twx-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pure React styling library - Component-first Tailwind CSS runtime engine",
   "type": "module",
   "main": "./dist/index.cjs",
