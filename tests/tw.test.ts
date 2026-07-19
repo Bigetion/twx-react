@@ -56,6 +56,16 @@ describe('tw() utility function', () => {
     expect(css).toContain('@media');
   });
 
+  it('should warn when a class token is not supported', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    tw('not-a-real-utility');
+
+    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy.mock.calls[0][0]).toContain('Unknown utility class');
+    warnSpy.mockRestore();
+  });
+
   it('should inject keyframes for built-in animations', () => {
     tw('animate-spin');
     const css = extractCriticalCSS();

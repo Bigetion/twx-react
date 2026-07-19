@@ -23,6 +23,7 @@ autoInjectPreflight();
 export { tw } from './tw';
 export { expandClassName } from './internal/expander';
 export { mergeClassNames, mergeClassNames as twMerge } from './internal/merger';
+export { warnUnknownClass } from './internal/generator';
 
 // ─── Preflight (CSS Reset) ────────────────────────────────────────────────────
 

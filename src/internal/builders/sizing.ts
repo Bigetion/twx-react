@@ -127,6 +127,7 @@ const MAX_WIDTH_NAMED: Record<string, string> = {
   'max': 'max-content',
   'fit': 'fit-content',
   'prose': '65ch',
+  'screen': '100vw',
   'screen-sm': '640px',
   'screen-md': '768px',
   'screen-lg': '1024px',

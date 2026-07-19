@@ -71,6 +71,9 @@ describe('Sizing Utilities Builder (Task 3.3)', () => {
       expect(widthGenerator(makeParsed('w', 'min'))).toEqual({ width: 'min-content' });
       expect(widthGenerator(makeParsed('w', 'max'))).toEqual({ width: 'max-content' });
       expect(widthGenerator(makeParsed('w', 'fit'))).toEqual({ width: 'fit-content' });
+      expect(widthGenerator(makeParsed('w', 'svw'))).toEqual({ width: '100svw' });
+      expect(widthGenerator(makeParsed('w', 'lvw'))).toEqual({ width: '100lvw' });
+      expect(widthGenerator(makeParsed('w', 'dvw'))).toEqual({ width: '100dvw' });
     });
 
     it('should resolve arbitrary values', () => {

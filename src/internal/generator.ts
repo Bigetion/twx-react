@@ -120,6 +120,23 @@ export const VARIANT_SELECTORS: Record<string, string> = {
 
 /** Registry of utility generators keyed by utility name */
 const utilityRegistry = new Map<string, UtilityGenerator>();
+const warnedUnknownClasses = new Set<string>();
+
+/**
+ * Emit a developer-facing warning for unsupported utility classes.
+ * Warnings are deduplicated per class name to avoid noisy console spam.
+ */
+export function warnUnknownClass(className: string): void {
+  if (!className || warnedUnknownClasses.has(className)) {
+    return;
+  }
+
+  warnedUnknownClasses.add(className);
+
+  if (typeof console !== 'undefined' && typeof console.warn === 'function') {
+    console.warn(`[twx-react] Unknown utility class "${className}" will be preserved as-is because no matching generator was registered.`);
+  }
+}
 
 /**
  * Register a utility generator for a specific utility name.
@@ -645,6 +662,9 @@ export function generateCSSString(
   // Cache miss — generate the CSS rule
   const rule = generateCSS(parsedClass, originalClassName);
   if (!rule) {
+    if (parsedClass.utility) {
+      warnUnknownClass(originalClassName);
+    }
     return null;
   }
 

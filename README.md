@@ -14,10 +14,49 @@ Create styled React components with type-safe variants, multi-slot patterns, and
 ## Installation
 
 ```bash
-npm install twx-react
+npm install twx-react react
 ```
 
 Requires React 17+ as a peer dependency.
+
+## Quick Start
+
+If you are new to the library, start with the simplest pattern:
+
+```tsx
+import { tw } from 'twx-react';
+
+export function Example() {
+  return (
+    <tw.button className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+      Save changes
+    </tw.button>
+  );
+}
+```
+
+For a more reusable UI primitive, use `createTwComponent`:
+
+```tsx
+import { createTwComponent } from 'twx-react';
+
+const Button = createTwComponent('button', {
+  base: 'inline-flex items-center rounded-lg font-medium transition-colors',
+  variants: {
+    size: {
+      sm: 'px-3 py-1.5 text-sm',
+      md: 'px-4 py-2 text-base',
+    },
+    color: {
+      primary: 'bg-blue-600 text-white hover:bg-blue-700',
+      secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
+    },
+  },
+  defaultVariants: { size: 'md', color: 'primary' },
+});
+```
+
+A more detailed getting-started guide is available in [docs/GETTING-STARTED.md](docs/GETTING-STARTED.md).
 
 ---
 

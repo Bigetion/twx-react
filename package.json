@@ -1,7 +1,7 @@
 {
   "name": "twx-react",
-  "version": "0.1.1",
-  "description": "Pure React styling library - Component-first Tailwind CSS runtime engine",
+  "version": "0.1.2",
+  "description": "Runtime-first styling library for React with Tailwind-style utilities, component variants, slots, compounds, and theme support",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
@@ -17,6 +17,8 @@
   "files": [
     "dist",
     "README.md",
+    "CHANGELOG.md",
+    "docs",
     "LICENSE"
   ],
   "scripts": {
@@ -44,7 +46,8 @@
     "variants",
     "runtime",
     "zero-build",
-    "typescript"
+    "typescript",
+    "design-system"
   ],
   "author": "Bigetion",
   "license": "MIT",
