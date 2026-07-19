@@ -46,11 +46,18 @@
     "zero-build",
     "typescript"
   ],
-  "author": "Your Name",
+  "author": "Bigetion",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/twx-react.git"
+    "url": "https://github.com/Bigetion/twx-react.git"
+  },
+  "homepage": "https://github.com/Bigetion/twx-react",
+  "bugs": {
+    "url": "https://github.com/Bigetion/twx-react/issues"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "peerDependencies": {
     "react": ">=17.0.0"

@@ -137,6 +137,29 @@ const Button = createTwComponent('button', {
 
 ---
 
+## Production Notes
+
+### SSR and hydration
+- The library supports SSR-style rendering by collecting CSS in memory when `document` is unavailable.
+- For server-rendered apps, embed the extracted critical CSS before hydration to avoid flashes of unstyled content.
+
+```ts
+import { extractCriticalCSS } from 'twx-react';
+
+const criticalCss = extractCriticalCSS();
+```
+
+### Browser support
+- Runtime CSS injection is designed to work in modern browsers and test environments.
+- If you use a browser-like environment with limited CSS support, the library will automatically fall back to plain CSS injection.
+
+### Performance tips
+- Reuse component configs instead of recreating them on every render.
+- Prefer `createTwComponent` / `createTwCompound` for reusable UI primitives.
+- Keep class strings deterministic to benefit from caching and deduplication.
+
+---
+
 ## API Reference
 
 ### `tw.element` Components

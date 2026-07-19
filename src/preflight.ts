@@ -8,7 +8,7 @@
  * @packageDocumentation
  */
 
-import { isSSR, LAYER_ORDER_STATEMENT } from './internal/injector';
+import { isSSR, LAYER_ORDER_STATEMENT, supportsCascadeLayers, wrapInLayer } from './internal/injector';
 
 const PREFLIGHT_ID = 'twx-react-preflight';
 let preflightInjected = false;
@@ -55,7 +55,10 @@ export function injectPreflight(): void {
   style.setAttribute('data-twx-react-preflight', '');
   // Wrapped in its own (lowest-priority) cascade layer so utility/variant
   // classes reliably override the reset, regardless of DOM tag order.
-  style.textContent = `${LAYER_ORDER_STATEMENT}\n@layer twx-preflight {\n${PREFLIGHT_CSS}\n}`;
+  const preflightCss = supportsCascadeLayers()
+    ? `${LAYER_ORDER_STATEMENT}\n${wrapInLayer(PREFLIGHT_CSS, 'preflight')}`
+    : PREFLIGHT_CSS;
+  style.textContent = preflightCss;
 
   // Insert BEFORE the utility styles so utilities can override preflight
   const utilityStyle = document.getElementById('twx-react-styles');

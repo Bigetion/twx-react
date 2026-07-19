@@ -22,6 +22,90 @@ const STYLE_TAG_ID = 'twx-react-styles';
  */
 export type TwxCSSLayer = 'preflight' | 'utilities' | 'variants';
 
+let cascadeLayerSupport: boolean | null = null;
+
+/**
+ * Detect whether the current environment can safely parse CSS cascade layers.
+ * Some test environments (such as older jsdom variants) reject `@layer` blocks
+ * even though they allow plain CSS text, so we fall back to simple CSS injection
+ * whenever layers are unsupported.
+ */
+export function supportsCascadeLayers(): boolean {
+  if (cascadeLayerSupport !== null) {
+    return cascadeLayerSupport;
+  }
+
+  if (isSSR()) {
+    cascadeLayerSupport = false;
+    return false;
+  }
+
+  if (typeof document === 'undefined' || !document.createElement || !document.head) {
+    cascadeLayerSupport = false;
+    return false;
+  }
+
+  const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  const isJSDOM = /jsdom|happy-dom/i.test(userAgent) || typeof window !== 'undefined' && 'DOMParser' in window && /jsdom/i.test(window.document?.documentElement?.outerHTML ?? '');
+
+  if (isJSDOM) {
+    cascadeLayerSupport = false;
+    return false;
+  }
+
+  const testCss = '@layer twx-preflight, twx-utilities, twx-variants;@layer twx-utilities { .twx-test { color: red; } }';
+
+  try {
+    const testStyle = document.createElement('style');
+    testStyle.textContent = testCss;
+    document.head.appendChild(testStyle);
+    testStyle.remove();
+    cascadeLayerSupport = true;
+  } catch {
+    cascadeLayerSupport = false;
+  }
+
+  return cascadeLayerSupport;
+}
+
+/**
+ * Wrap a CSS rule in a cascade layer when layers are supported.
+ * Falls back to the plain rule when the environment does not support `@layer`.
+ */
+export function wrapInLayer(cssRule: string, layer: TwxCSSLayer = 'utilities'): string {
+  if (!supportsCascadeLayers()) {
+    return cssRule;
+  }
+
+  return `@layer twx-${layer} {\n${cssRule}\n}`;
+}
+
+/**
+ * Normalize a CSS rule for environments that do not support cascade layers.
+ * Layer wrappers are stripped and layer-order statements are discarded.
+ */
+function normalizeCssForEnvironment(cssRule: string): string {
+  if (supportsCascadeLayers()) {
+    return cssRule;
+  }
+
+  const trimmed = cssRule.trim();
+  if (!trimmed.startsWith('@layer')) {
+    return cssRule;
+  }
+
+  if (!trimmed.includes('{')) {
+    return '';
+  }
+
+  const match = trimmed.match(/^@layer\s+[^\{]+\{([\s\S]*)\}$/);
+  if (match) {
+    return match[1].trim();
+  }
+
+  return cssRule;
+}
+
 /**
  * The single source of truth for the cascade layer order. Exported so
  * `preflight.ts` can declare the exact same order before its own layer block,
@@ -99,19 +183,28 @@ export function injectCSS(cssRule: string): void {
     return;
   }
 
+  const normalizedCss = normalizeCssForEnvironment(cssRule);
+  if (!normalizedCss) {
+    return;
+  }
+
   if (isSSR()) {
     // SSR path: accumulate in memory buffer
-    if (!ssrSeen.has(cssRule)) {
-      ssrSeen.add(cssRule);
-      ssrBuffer.push(cssRule);
+    if (!ssrSeen.has(normalizedCss)) {
+      ssrSeen.add(normalizedCss);
+      ssrBuffer.push(normalizedCss);
     }
   } else {
     // Browser path: write to DOM
-    if (!browserSeen.has(cssRule)) {
-      browserSeen.add(cssRule);
+    if (!browserSeen.has(normalizedCss)) {
+      browserSeen.add(normalizedCss);
       const styleTag = getStyleTag();
       if (styleTag) {
-        styleTag.appendChild(document.createTextNode(cssRule));
+        try {
+          styleTag.appendChild(document.createTextNode(normalizedCss));
+        } catch {
+          styleTag.textContent = `${styleTag.textContent ?? ''}${normalizedCss}`;
+        }
       }
     }
   }
@@ -147,11 +240,12 @@ export function injectLayeredCSS(
 ): void {
   if (!cssRule) return;
 
-  if (!isInjected(LAYER_ORDER_STATEMENT)) {
+  if (supportsCascadeLayers() && !isInjected(LAYER_ORDER_STATEMENT)) {
     injectCSS(LAYER_ORDER_STATEMENT);
   }
 
-  injectCSS(`@layer twx-${layer} {\n${cssRule}\n}`);
+  const wrappedCss = wrapInLayer(cssRule, layer);
+  injectCSS(wrappedCss);
 }
 
 // ---------------------------------------------------------------------------

@@ -4,6 +4,7 @@
  * The Jest test environment is set to 'node', so by default we are in SSR mode
  * (no `document` global). Browser-mode tests set up a mock document.
  */
+import * as injectorModule from '../../src/internal/injector';
 import {
   injectCSS,
   extractCriticalCSS,
@@ -175,5 +176,15 @@ describe('injector - Browser mode (mocked DOM)', () => {
     expect((globalThis as any).document.createElement).toHaveBeenCalledWith('style');
     expect(mockStyleTag.setAttribute).toHaveBeenCalledWith('data-twx-react', '');
     expect((globalThis as any).document.head.appendChild).toHaveBeenCalled();
+  });
+
+  test('falls back to plain CSS when layered CSS injection is unsupported', () => {
+    const supportsSpy = jest.spyOn(injectorModule, 'supportsCascadeLayers').mockReturnValue(false);
+
+    expect(() => injectCSS('@layer twx-utilities { .fallback { color: red; } }')).not.toThrow();
+    expect(mockStyleTag.textContent).toContain('.fallback { color: red; }');
+    expect(mockStyleTag.textContent).not.toContain('@layer');
+
+    supportsSpy.mockRestore();
   });
 });

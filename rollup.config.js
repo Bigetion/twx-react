@@ -27,6 +27,7 @@ const plugins = [
   typescript({
     tsconfig: './tsconfig.json',
     declaration: false,
+    declarationMap: false,
   }),
 ];
 
@@ -95,6 +96,8 @@ export default [
       format: 'esm',
     },
     external,
-    plugins: [dts()],
+    plugins: [dts({
+      tsconfig: './tsconfig.json',
+    })],
   },
 ];
