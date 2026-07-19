@@ -1,6 +1,6 @@
 # TWX-React API Reference
 
-> Complete API documentation for twx-react v1.0.0 — a pure React styling library providing component-first APIs for Tailwind CSS runtime generation.
+> Complete API documentation for twx-react v0.1.4 — a pure React styling library providing component-first APIs for Tailwind CSS runtime generation.
 
 ---
 
@@ -713,11 +713,11 @@ All TypeScript types are exported from the main `twx-react` entry point.
 
 | Export | Type | Value | Description |
 |--------|------|-------|-------------|
-| `version` | `string` | `'1.0.0'` | Current package version |
+| `version` | `string` | `'0.1.4'` | Current package version |
 
 ```ts
 import { version } from 'twx-react';
-console.log(version); // "1.0.0"
+console.log(version); // "0.1.4"
 ```
 
 ---
