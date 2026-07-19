@@ -230,6 +230,7 @@ const divideX: UtilityGenerator = (parsed: ParsedClass) => {
     properties: {
       'border-left-width': `calc(${width} * calc(1 - var(--tw-divide-x-reverse, 0)))`,
       'border-right-width': `calc(${width} * var(--tw-divide-x-reverse, 0))`,
+      'border-style': 'solid',
     },
     selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
   };
@@ -247,6 +248,7 @@ const divideY: UtilityGenerator = (parsed: ParsedClass) => {
     properties: {
       'border-top-width': `calc(${width} * calc(1 - var(--tw-divide-y-reverse, 0)))`,
       'border-bottom-width': `calc(${width} * var(--tw-divide-y-reverse, 0))`,
+      'border-style': 'solid',
     },
     selectorSuffix: ' > :not([hidden]) ~ :not([hidden])',
   };

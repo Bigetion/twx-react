@@ -25,7 +25,7 @@
  */
 
 import { parseClassName } from './parser';
-import { generateCSS } from './generator';
+import { generateCSS, resolveVariants } from './generator';
 import { expandClassName } from './expander';
 import { LRUCache } from './cache';
 
@@ -45,11 +45,15 @@ function getConflictKey(token: string): string | null {
   const parsed = parseClassName(token);
 
   if (parsed.utility) {
-    const rule = generateCSS(parsed);
+    const rule = generateCSS(parsed, token);
     if (rule) {
       const propertyKeys = Object.keys(rule.properties).sort().join(',');
       const variantKey = [...parsed.variants].sort().join(':');
-      key = `${variantKey}|${propertyKeys}`;
+      const { selector: baseSelector } = resolveVariants(token, parsed.variants);
+      const selectorSuffix = rule.selector.startsWith(baseSelector)
+        ? rule.selector.slice(baseSelector.length)
+        : rule.selector;
+      key = `${variantKey}|${selectorSuffix}|${propertyKeys}`;
     }
   }
 
