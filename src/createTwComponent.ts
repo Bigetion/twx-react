@@ -42,6 +42,7 @@ import { parseClassName } from './internal/parser';
 import { generateCSSString } from './internal/generator';
 import { injectLayeredCSS } from './internal/injector';
 import { mergeClassNames } from './internal/merger';
+import { expandClassName } from './internal/expander';
 
 // Side-effect: ensure all utility builders are registered before CSS generation
 import './internal/init';
@@ -161,7 +162,9 @@ function injectClassToken(token: string): void {
  */
 function injectClassString(classString: string): void {
   if (!classString) return;
-  const tokens = classString.split(/\s+/).filter(Boolean);
+  // Expand grouping syntax (hover:(...), !(...), -(...)) so tokens are valid
+  const expanded = expandClassName(classString);
+  const tokens = expanded.split(/\s+/).filter(Boolean);
   for (const token of tokens) {
     injectClassToken(token);
   }
