@@ -1,6 +1,6 @@
 # Getting Started with twx-react
 
-twx-react is a runtime-first styling library for React. It lets you build UI with Tailwind-style classes while keeping the ergonomics of component composition, variants, and theme tokens.
+twx-react is a runtime-first styling library for React. It gives you Tailwind-style utilities with component composition, typed variants, and a compact runtime API.
 
 ## Installation
 
@@ -8,7 +8,7 @@ twx-react is a runtime-first styling library for React. It lets you build UI wit
 npm install twx-react react
 ```
 
-## Quick start
+## First example
 
 ```tsx
 import { tw } from 'twx-react';
@@ -22,7 +22,7 @@ export function Example() {
 }
 ```
 
-## Create a reusable component
+## Reusable component pattern
 
 ```tsx
 import { createTwComponent } from 'twx-react';
@@ -45,13 +45,13 @@ const Button = createTwComponent('button', {
 
 ## When to use which API
 
-- Use `tw` for quick styling and third-party components.
-- Use `createTwComponent` for reusable buttons, cards, badges, and similar primitives.
-- Use `createTwSlots` when a UI needs multiple coordinated parts.
-- Use `createTwCompound` when you want a family of related components.
+- Use `tw` for direct utility processing and class merging.
+- Use `createTwComponent` for reusable primitives such as buttons and badges.
+- Use `createTwSlots` for coordinated multi-part UI.
+- Use `createTwCompound` for families of related components.
 
 ## Next steps
 
-- Review the examples in the examples folder.
-- Read the API reference in the README.
-- Use the runtime warning helpers when debugging unsupported classes.
+- Read the API overview in the README.
+- Use `twMerge` when you need deterministic conflict resolution.
+- Use `injectPreflight` or `disablePreflight` when you need explicit control over CSS reset behavior.

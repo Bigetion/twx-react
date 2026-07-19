@@ -9,4 +9,3 @@ export * from './component';
 export * from './variants';
 export * from './slots';
 export * from './compound';
-export * from './theme';

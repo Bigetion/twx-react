@@ -58,12 +58,6 @@ export type {
 export { useTwVariants } from './hooks/useTwVariants';
 export { useTwSlots } from './hooks/useTwSlots';
 
-// ─── Theme APIs ───────────────────────────────────────────────────────────────
-
-export { createTwTheme, defaultTheme, getDefaultTheme, defaultTailwindTheme } from './theme/createTwTheme';
-export { TwThemeProvider } from './theme/TwThemeProvider';
-export { useTwTheme } from './theme/useTwTheme';
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // Type-Only Exports (from src/types/)
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -124,22 +118,6 @@ export type {
   CompoundPartConfig as CompoundCorePartConfig,
   TwCompoundComponents as CompoundCoreComponents,
 } from './types/compound';
-
-// ─── Theme Types (types/theme.ts) ─────────────────────────────────────────────
-
-export type {
-  DeepPartial,
-  ColorScale,
-  ColorPalette,
-  SpacingScale,
-  FontSizeConfig,
-  ScreenBreakpoints,
-  ThemeTokens,
-  TwTheme,
-  ThemeOverrides,
-  TwThemeProviderProps,
-  TwThemeContext,
-} from './types/theme';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Package Metadata
