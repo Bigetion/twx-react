@@ -194,7 +194,7 @@ describe('Effects Utilities Builder', () => {
       const rule = generateCSS(parsed, 'ring');
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
-        'box-shadow': '0 0 0 2px #fff, 0 0 0 5px rgb(59 130 246 / 0.5)',
+        'box-shadow': '0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 3px) rgb(59 130 246 / 0.5)',
       });
     });
 
@@ -212,7 +212,7 @@ describe('Effects Utilities Builder', () => {
       const rule = generateCSS(parsed, 'ring-1');
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
-        'box-shadow': '0 0 0 2px #fff, 0 0 0 3px rgb(59 130 246 / 0.5)',
+        'box-shadow': '0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 1px) rgb(59 130 246 / 0.5)',
       });
     });
 
@@ -221,7 +221,7 @@ describe('Effects Utilities Builder', () => {
       const rule = generateCSS(parsed, 'ring-2');
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
-        'box-shadow': '0 0 0 2px #fff, 0 0 0 4px rgb(59 130 246 / 0.5)',
+        'box-shadow': '0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 2px) rgb(59 130 246 / 0.5)',
       });
     });
 
@@ -230,7 +230,7 @@ describe('Effects Utilities Builder', () => {
       const rule = generateCSS(parsed, 'ring-4');
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
-        'box-shadow': '0 0 0 2px #fff, 0 0 0 6px rgb(59 130 246 / 0.5)',
+        'box-shadow': '0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 4px) rgb(59 130 246 / 0.5)',
       });
     });
 
@@ -239,7 +239,7 @@ describe('Effects Utilities Builder', () => {
       const rule = generateCSS(parsed, 'ring-8');
       expect(rule).not.toBeNull();
       expect(rule!.properties).toEqual({
-        'box-shadow': '0 0 0 2px #fff, 0 0 0 10px rgb(59 130 246 / 0.5)',
+        'box-shadow': '0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 8px) rgb(59 130 246 / 0.5)',
       });
     });
 
