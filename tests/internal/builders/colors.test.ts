@@ -266,6 +266,26 @@ describe('Color Utilities Builder', () => {
     });
   });
 
+  describe('ring color generation', () => {
+    it('should generate ring-blue-300 as a ring color variable', () => {
+      const parsed = parseClassName('ring-blue-300');
+      const rule = generateCSS(parsed, 'ring-blue-300');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({
+        '--tw-ring-color': 'oklch(0.809 0.105 251.813)',
+      });
+    });
+
+    it('should generate ring-white as a ring color variable', () => {
+      const parsed = parseClassName('ring-white');
+      const rule = generateCSS(parsed, 'ring-white');
+      expect(rule).not.toBeNull();
+      expect(rule!.properties).toEqual({
+        '--tw-ring-color': 'oklch(1 0 0)',
+      });
+    });
+  });
+
   describe('divide color generation', () => {
     it('should generate divide-red-500 with selector suffix', () => {
       const parsed = parseClassName('divide-red-500');

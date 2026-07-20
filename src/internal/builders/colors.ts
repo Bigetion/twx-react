@@ -498,8 +498,8 @@ function createRingColorGenerator(family: string): UtilityGenerator {
     const colorValue = resolveColor(family, shade, opacity);
     if (!colorValue) return null;
 
-    // Stacked shadow: 2px white offset + 3px ring with color
-    return { 'box-shadow': `0 0 0 2px #fff, 0 0 0 5px ${colorValue}` };
+    // Use the ring color variable so ring width and ring color can compose.
+    return { '--tw-ring-color': colorValue };
   };
 }
 
@@ -551,7 +551,7 @@ function createTextShadowColorGenerator(family: string): UtilityGenerator {
  */
 function createSpecialRingColorGenerator(color: string): UtilityGenerator {
   return (_parsed: ParsedClass) => {
-    return { 'box-shadow': `0 0 0 2px #fff, 0 0 0 5px ${color}` };
+    return { '--tw-ring-color': color };
   };
 }
 

@@ -59,18 +59,18 @@ const INSET_SHADOW_SCALE: Record<string, string> = {
 
 // ─── Ring Width Scale ─────────────────────────────────────────────────────────
 
+const RING_OFFSET_VARIABLE = 'var(--tw-ring-offset-width, 2px)';
+const RING_COLOR_VARIABLE = 'var(--tw-ring-color, rgb(59 130 246 / 0.5))';
+
 /** Maps ring width → CSS box-shadow value (includes white offset gap + ring color) */
-// Use CSS variable for the offset gap so `ring-offset-*` can influence the
-// visual spacing. Each entry expresses the white offset gap using
-// `var(--tw-ring-offset-width, 2px)` and the outer ring size as a calc of
-// that variable plus the ring's thickness.
+// Use CSS variables so ring color and ring-offset utilities can compose.
 const RING_WIDTH_SCALE: Record<string, string> = {
   '0': 'none',
-  '1': `0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 1px) rgb(59 130 246 / 0.5)`,
-  '2': `0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 2px) rgb(59 130 246 / 0.5)`,
-  'DEFAULT': `0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 3px) rgb(59 130 246 / 0.5)`,
-  '4': `0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 4px) rgb(59 130 246 / 0.5)`,
-  '8': `0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 8px) rgb(59 130 246 / 0.5)`,
+  '1': `0 0 0 ${RING_OFFSET_VARIABLE} #fff, 0 0 0 calc(${RING_OFFSET_VARIABLE} + 1px) ${RING_COLOR_VARIABLE}`,
+  '2': `0 0 0 ${RING_OFFSET_VARIABLE} #fff, 0 0 0 calc(${RING_OFFSET_VARIABLE} + 2px) ${RING_COLOR_VARIABLE}`,
+  'DEFAULT': `0 0 0 ${RING_OFFSET_VARIABLE} #fff, 0 0 0 calc(${RING_OFFSET_VARIABLE} + 3px) ${RING_COLOR_VARIABLE}`,
+  '4': `0 0 0 ${RING_OFFSET_VARIABLE} #fff, 0 0 0 calc(${RING_OFFSET_VARIABLE} + 4px) ${RING_COLOR_VARIABLE}`,
+  '8': `0 0 0 ${RING_OFFSET_VARIABLE} #fff, 0 0 0 calc(${RING_OFFSET_VARIABLE} + 8px) ${RING_COLOR_VARIABLE}`,
 };
 
 // ─── Ring Offset Scale ────────────────────────────────────────────────────────
@@ -178,7 +178,10 @@ const insetShadowGenerator: UtilityGenerator = (parsed) => {
 const ringGenerator: UtilityGenerator = (parsed) => {
   // "ring" with no value → default blue ring with offset
   if (!parsed.value) {
-    return { 'box-shadow': '0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + 3px) rgb(59 130 246 / 0.5)' };
+    return {
+      '--tw-ring-color': 'rgb(59 130 246 / 0.5)',
+      'box-shadow': `0 0 0 ${RING_OFFSET_VARIABLE} #fff, 0 0 0 calc(${RING_OFFSET_VARIABLE} + 3px) ${RING_COLOR_VARIABLE}`,
+    };
   }
 
   // ring-inset → --tw-ring-inset: inset
@@ -189,7 +192,7 @@ const ringGenerator: UtilityGenerator = (parsed) => {
   // Arbitrary value: ring-[3px]
   if (parsed.arbitrary && parsed.value.startsWith('[') && parsed.value.endsWith(']')) {
     const width = parsed.value.slice(1, -1);
-    return { 'box-shadow': `0 0 0 var(--tw-ring-offset-width, 2px) #fff, 0 0 0 calc(var(--tw-ring-offset-width, 2px) + ${width}) rgb(59 130 246 / 0.5)` };
+    return { 'box-shadow': `0 0 0 ${RING_OFFSET_VARIABLE} #fff, 0 0 0 calc(${RING_OFFSET_VARIABLE} + ${width}) ${RING_COLOR_VARIABLE}` };
   }
 
   const ring = RING_WIDTH_SCALE[parsed.value];
